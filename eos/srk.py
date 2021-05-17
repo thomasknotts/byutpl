@@ -104,8 +104,8 @@ lnphil(t,p,tc,pc,w) natural log liquid fugacity coefficient unitless
 lnphiv(t,p,tc,pc,w) natural log vapor fugacity coefficient  unitless
 
 The residual for property J is defined as
-  J - J**ig
-where J is the value for the real fluid and J**ig is the value for the
+  J - J*
+where J is the value for the real fluid and J* is the value for the
 ideal gas.                                              
 
 References
