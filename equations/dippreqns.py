@@ -1,25 +1,25 @@
-# Copyright (C) 2019 Thomas Allen Knotts IV - All Rights Reserved          #
-# This file, dippres.py, is a python library that has functions that     #
-# accepts a temperature in K and an array of coefficients and returns the  #
+# Copyright (C) 2021 Thomas Allen Knotts IV - All Rights Reserved          #
+# This file, dippreqns.py, is a python module with functions that          #
+# accept a temperature in K and an array of coefficients and returns the   #
 # value of the DIPPR equation.                                             #
 #                                                                          #
-# dippres.py is free software: you can redistribute it and/or            #
+# dippreqns.py is free software: you can redistribute it and/or            #
 # modify it under the terms of the GNU General Public License as           #
 # published by the Free Software Foundation, either version 3 of the       #
 # License, or (at your option) any later version.                          #
 #                                                                          #
-# dippres.py is distributed in the hope that it will be useful,          #
+# dippreqns.py is distributed in the hope that it will be useful,          #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of           #
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
 # GNU General Public License for more details.                             #
 #                                                                          #
 # You should have received a copy of the GNU General Public License        #
-# along with dippres.py.  If not, see                                    #
+# along with dippreqns.py.  If not, see                                    #
 # <http://www.gnu.org/licenses/>.                                          #
 #                                                                          #
 
 # ======================================================================== #
-# dippres.py                                                             #
+# dippreqns.py                                                             #
 #                                                                          #
 # Thomas A. Knotts IV                                                      #
 # Brigham Young University                                                 #
@@ -28,12 +28,11 @@
 # Email: thomas.knotts@byu.edu                                             #
 # ======================================================================== #
 # Version 1.0 - September 2019                                             #
+# Version 2.0 - May 2021 Added docstring; Renamed from dippres.py to       #
+#               dippreqns.py; Reorganized package structure                #
 # ======================================================================== #
-
-# ======================================================================== #
-# dippres.py                                                             #
-#                                                                          #
-# This library contains functions that accepts a temperature in K and an   #
+"""
+This module contains functions that accept a temperature in K and an
 # array of coefficients and returns the  value of the DIPPR equation.      #
 #                                                                          #
 # The equations are listed in the DIPPR Policies and Procedures Manual (C) #
