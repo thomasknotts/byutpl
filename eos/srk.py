@@ -56,11 +56,12 @@ Import the module using
 
   import byutpl.eos.srk as srk
 
-Imported in the manner, the functions can be called as  
+Loaded in this manner, the functions can be called with syntax like the 
+following.  
   
   srk.vl(t,p,tc,pc,w)
 
-which would return the liquid molar volume from the SRK EOS at t and p
+This would return the liquid molar volume from the SRK EOS at t and p
 for the compound described by tc, pc, and w.
 
 Many functions are available, but several are support functions that 
@@ -69,9 +70,9 @@ Below, the lists of input parameters is found followed by the list of
 functions that are most useful. Use help(srk) for a list of all functions
 available in the module.    
 
-----------------------------------------------------------------------
+======================================================================
 INPUT PARAMETERS FOR FUNCTIONS                          
-----------------------------------------------------------------------
+======================================================================
 Symbol              Property                                Units       
 ----------------------------------------------------------------------
 t                   system temperature                      K           
@@ -80,12 +81,12 @@ v                   system molar volume                     m**3/mol
 tc                  critical temperature of compound        K           
 pc                  critical pressure of compound           Pa          
 w                   acentric factor of compound             unitless    
-----------------------------------------------------------------------
+======================================================================
 
 
-----------------------------------------------------------------------
+======================================================================
 PROPERTY FUNCTIONS                                          
-----------------------------------------------------------------------
+======================================================================
 Function            Return Value                            Units       
 ----------------------------------------------------------------------
 vl(t,p,tc,pc,w)     liquid molar volume                     m**3/mol    
@@ -102,6 +103,7 @@ grl(t,p,tc,pc,w)    liquid residual Gibbs energy            J/mol
 grv(t,p,tc,pc,w)    vapor residual Gibbs energy             J/mol 
 lnphil(t,p,tc,pc,w) natural log liquid fugacity coefficient unitless
 lnphiv(t,p,tc,pc,w) natural log vapor fugacity coefficient  unitless
+======================================================================
 
 The residual for property J is defined as
   J - J*

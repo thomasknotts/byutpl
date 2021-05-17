@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Thomas Allen Knotts IV - All Rights Reserved          #
+# Copyright (C) 2019 Thomas Allen Knotts IV - All Rights Reserved          #
 # This file, dippreqns.py, is a python module with functions that          #
 # accept a temperature in K and an array of coefficients and returns the   #
 # value of the DIPPR equation.                                             #
@@ -33,51 +33,66 @@
 # ======================================================================== #
 """
 This module contains functions that accept a temperature in K and an
-# array of coefficients and returns the  value of the DIPPR equation.      #
-#                                                                          #
-# The equations are listed in the DIPPR Policies and Procedures Manual (C) #
-#                                                                          #
-# The library can be loaded into python via the following command:         #
-# import dippres as dippr                                                #
-#                                                                          #
-# ----------------------------------------------------------------------   #
-# DEFINITION OF INPUT PARAMETERS FOR FUNCTIONS                             #
-# ----------------------------------------------------------------------   #
-# Symbol                Property                            Units          #
-# ----------------------------------------------------------------------   #
-# t                     system temperature                  K              #
-# tr                    reduced system temperature          unitless       #
-# tau                   1 - tr                              unitless       #
-# c                     matrix of coefficients              DIPPR Default  #
-# ----------------------------------------------------------------------   #
-#                                                                          #
-#                                                                          #
-# ----------------------------------------------------------------------   #
-# AVAILABLE PROPERTY FUNCTIONS                                             # 
-# ----------------------------------------------------------------------   #
-# Function              Return Value                        Units          #
-# ----------------------------------------------------------------------   #
-# eq100(t,c)            value of Eqn. 100 at t with c       DIPPR Default  #
-# eq101(t,c)            value of Eqn. 101 at t with c       DIPPR Default  #
-# eq102(t,c)            value of Eqn. 102 at t with c       DIPPR Default  #
-# eq104(t,c)            value of Eqn. 104 at t with c       DIPPR Default  #
-# eq105(t,c)            value of Eqn. 105 at t with c       DIPPR Default  #
-# eq106(tr,c)           value of Eqn. 106 at tr with c      DIPPR Default  #
-# eq107(t,c)            value of Eqn. 107 at t with c       DIPPR Default  #
-# eq114(tau,c)          value of Eqn. 114 at tau with c     DIPPR Default  #
-# eq115(t,c)            value of Eqn. 115 at t with c       DIPPR Default  #
-# eq116(tau,c)          value of Eqn. 116 at tau with c     DIPPR Default  #
-# eq119(tau,c)          value of Eqn. 119 at tau with c     DIPPR Default  #
-# eq123(tau,c)          value of Eqn. 123 at tau with c     DIPPR Default  #
-# eq124(tau,c)          value of Eqn. 124 at tau with c     DIPPR Default  #
-# eq127(t,c)            value of Eqn. 127 at t with c       DIPPR Default  #
-# ======================================================================== #
+array of coefficients and returns the  value of the DIPPR equation.      
 
+The equations are numbered as listed in the DIPPR Policies and 
+Procedures Manual© [1] and are listed below.
+  
+The library can be loaded into python via the following command:         
+
+  import dippreqns as dippr                                                
+
+Loaded in this manner, the functions can be called with syntax like the 
+following.
+
+  dippr.eq100(t,c)
+
+This would return the value of DIPPR equation 100 at temperature `t` for
+the coefficients found in array `c`.
+
+======================================================================   
+INPUT PARAMETERS FOR FUNCTIONS                             
+======================================================================   
+Symbol                Property                           Units          
+----------------------------------------------------------------------   
+t                     system temperature                 K              
+tr                    reduced system temperature         unitless       
+tau                   1 - tr                             unitless       
+c                     matrix of coefficients             DIPPR Default  
+======================================================================   
+
+
+======================================================================   
+AVAILABLE FUNCTIONS                                             
+======================================================================   
+Function              Return Value                       Units          
+----------------------------------------------------------------------   
+eq100(t,c)            value of Eqn. 100 at t with c      DIPPR Default  
+eq101(t,c)            value of Eqn. 101 at t with c      DIPPR Default  
+eq102(t,c)            value of Eqn. 102 at t with c      DIPPR Default  
+eq104(t,c)            value of Eqn. 104 at t with c      DIPPR Default  
+eq105(t,c)            value of Eqn. 105 at t with c      DIPPR Default  
+eq106(tr,c)           value of Eqn. 106 at tr with c     DIPPR Default  
+eq107(t,c)            value of Eqn. 107 at t with c      DIPPR Default  
+eq114(tau,c)          value of Eqn. 114 at tau with c    DIPPR Default  
+eq115(t,c)            value of Eqn. 115 at t with c      DIPPR Default  
+eq116(tau,c)          value of Eqn. 116 at tau with c    DIPPR Default  
+eq119(tau,c)          value of Eqn. 119 at tau with c    DIPPR Default  
+eq123(tau,c)          value of Eqn. 123 at tau with c    DIPPR Default  
+eq124(tau,c)          value of Eqn. 124 at tau with c    DIPPR Default  
+eq127(t,c)            value of Eqn. 127 at t with c      DIPPR Default  
+====================================================================== 
+
+References
+----------
+.. [1] Policies and Procedures Manual for DIPPR Project 801, 
+   American Institute of Chemical Engineerins, New York (1998).
+"""
 import numpy as np
 
-# ------------------------------------------------------------------------ #
-# DIPPR Equations                                                          #
-# ------------------------------------------------------------------------ #
+# -------------------------------------------------------------------- #
+# DIPPR Equations                                                      #
+# -------------------------------------------------------------------- #
 
 def eq100(t,c): # DIPPR Equation 100
     x = c[0] + c[1]*t + c[2]*t**2 + c[3]*t**3 + c[4]*t**4
