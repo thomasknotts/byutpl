@@ -96,9 +96,14 @@ import numpy as np
 
 def eq100(t,c):
 	"""DIPPR Equation 100
-	
+	   
 	A fourth order polynomial
 	Y = c[0] + c[1]*t + c[2}*t**2 + c[3]*t**3 + c[4}*t**4
+    
+    Properties: SDN (kmol/m**3), SCP (J/(kmol*K))
+    Alternate eqn for: ICP (J/(kmol*K)), SVR (m**3/kmol), 
+                       LDN (kmol/m**3), HVP (J/kmol), ST (N/m)
+                       VTC (W/(m*K)), LTC (W/(m*K)), LCP (J/(kmol*K))
 	
 	Parameters
 	----------
@@ -127,6 +132,8 @@ def eq101(t,c):
 	
 	The Reidel equation
 	Y = e**(c[0] + c[1]/t + c[2}*ln(t) + c[3}*t**c[4])
+    
+    Properties: VP (Pa), SVP (Pa), LVS (Pa*s)
 	
 	Parameters
 	----------
@@ -156,6 +163,7 @@ def eq101a(t,c):
 	The temperature derivative of the natural log of the
 	Reidel equation
 	dlnY/dt = -c[1]/t**2 + c[2}/t + c[3}c[4]*t**(c[4]-1)
+    It is usually used to obtain dVP/dt.
 	
 	Parameters
 	----------
@@ -163,12 +171,7 @@ def eq101a(t,c):
 		tempearture (K)
 		
 	c : 5x1 array 
-		the coefficients for Equation 101
-		c[0] : constant
-		c[1] : coefficient on 1/t term of Equation 101
-		c[2] : coefficient on ln(t) term of Equation 101
-		c[3] : coefficient on t**c[4] term of Equation 101
-		c[4] : power on `t` for c[3] term of Equation 101
+		the coefficients for Equation 101; see documentation for `eq101`
 	
 	Returns
 	-------
@@ -176,37 +179,205 @@ def eq101a(t,c):
 		Value of temperature derivative of the natural logarithm
 		of DIPPR Equation 101 at `t` given `c`. 
 		Units: default DIPPR units for property described by `c`
-		divided by K.
-	"""   x = -1.0*c[1]/t**2 + c[2]/t + c[3]*c[4]*t**(c[4]-1.0)
-  return(x)
+		divided by K. For VP or SVP, Pa/K
+	"""
+    x = -1.0*c[1]/t**2 + c[2]/t + c[3]*c[4]*t**(c[4]-1.0)
+    return(x)
 
-def eq102(t,c): # DIPPR Equation 102
-  x = c[0]*t**c[1]/(1 + c[2]/t + c[3]/t**2)
-  return(x) # DIPPR default units for coefficients supplied 
+def eq102(t,c):
+	"""DIPPR Equation 102
+	
+	Y = c[0]*t**c[1]/(1 + c[2]/t + c[3]/t**2)
+    
+    Properties: SCP (J/(kmol*K)), VVS (Pa*s), VTC (W/(m*K))
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 4x1 array 
+		the coefficients for the equation
+		c[0] : coefficient on t**c[1] term
+		c[1] : power on `t` for c[0] term
+		c[2] : coefficient on 1/t term
+		c[3] : coefficient on 1/t**2 term
+	
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 102 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""  
+    x = c[0]*t**c[1]/(1 + c[2]/t + c[3]/t**2)
+    return(x)
   
-def eq104(t,c): # DIPPR Equation 104
-  x = c[0] + c[1]/t + c[2]/t**3 + c[3]/t**8 + c[4]/t**9
-  return(x) # DIPPR default units for coefficients supplied 
+def eq104(t,c):
+	"""DIPPR Equation 104
+	
+	Y = c[0] + c[1]/t + c[2]/t**3 + c[3]/t**8 + c[4]/t**9
+    
+    Property: SVR (m**3/kmol)
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for the equation
+		c[0] : constant
+		c[1] : coefficient on 1/t term
+		c[2] : coefficient on 1/t**3 term
+		c[3] : coefficient on 1/t**8 term
+		c[4] : coefficient on 1/t**9 term	
+        
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 104 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""
+    x = c[0] + c[1]/t + c[2]/t**3 + c[3]/t**8 + c[4]/t**9
+    return(x)
  
-def eq105(t,c): # DIPPR Equation 105
-  x = c[0]/c[1]**(1 + (1 - t/c[2])**c[3])
-  return(x) # DIPPR default units for coefficients supplied
+def eq105(t,c):
+	"""DIPPR Equation 105
+	
+    Rackett Equation
+	Y = c[0]/c[1]**(1 + (1 - t/c[2])**c[3])
+    
+    Property: LDN (kmol/m**3)
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 4x1 array 
+		the coefficients for the equation
+		c[0] : constant
+		c[1] : base of power term
+        c[2] : see equation above
+        c[3] : see equation above
+              
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 105 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""
+    x = c[0]/c[1]**(1 + (1 - t/c[2])**c[3])
+  return(x)
   
-def eq105a(t,c): # DIPPR Equation 105a (This is the temperature derivative of Equation 105. It is not an offical DIPPR equation.)
-  x = eq105(t,c)*c[3]/c[2]*np.log(c[1])*(1 - t/c[2])**(c[3]-1)
-  return(x) # DIPPR default units for coefficients supplied (for LDN likely kmol/m**3/K
+def eq105a(t,c):
+	"""DIPPR Equation 105a
+	
+	The temperature derivative of Equation 105. This is not an official
+    DIPPR equation. It is usually used to obtain dLDN/dt.
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 4x1 array 
+		the coefficients for Equation 105, see documentation for `eq105`
 
-def eq106(tr,c): # DIPPR Equation 106
-  x = c[0]*(1-tr)**(c[1] + c[2]*tr + c[3]*tr**2 + c[4]*tr**3)
-  return(x) # DIPPR default units for coefficients supplied   
+	Returns
+	-------
+	float
+		Value of temperature derivative of DIPPR Equation 105 at `t` 
+        given `c`. 
+		Units: default DIPPR units for property described by `c`
+		divided by K. For LDN, kmol/(m**3*K)
+	"""
+    x = eq105(t,c)*c[3]/c[2]*np.log(c[1])*(1 - t/c[2])**(c[3]-1)
+    return(x)
 
-def eq106a(tr,tc,c): # DIPPR Equation 106a (This is the temperature derivative of Equation 106. It is not an official DIPPR equation.)
-  x = eq106(tr,c)/tc*((np.log(1-tr)*(c[2] + 2*c[3]*tr + 3*c[4]*tr**2))-(c[1] + c[2]*tr + c[3]*tr**2 + c[4]*tr**3)/(1-tr))
-  return(x) # DIPPR default units for coefficients supplied (for HVP likely J/kmol/K)   
+def eq106(tr,c):
+	"""DIPPR Equation 106
+	
+	Y = c[0]*(1-tr)**(c[1] + c[2]*tr + c[3]*tr**2 + c[4]*tr**3)
+    
+    Property: HVP (J/kmol), ST (N/m)
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for the equation
+		c[0] : base of power term
+		c[1] : constant in exponent
+        c[2] : coefficient on tr term in exponent
+        c[3] : coefficient on tr**2 term in exponent
+        c[4] : coefficient on tr**3 term in exponent       
+        
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 106 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""
+    x = c[0]*(1-tr)**(c[1] + c[2]*tr + c[3]*tr**2 + c[4]*tr**3)
+    return(x)
 
-def eq107(t,c): # DIPPR Equation 107
-  x = c[0] + c[1]*((c[2]/t)/np.sinh(c[2]/t))**2 + c[3]*((c[4]/t)/np.cosh(c[4]/t))**2
-  return(x) # DIPPR default units for coefficients supplied     
+def eq106a(tr,tc,c):
+	"""DIPPR Equation 106a
+	
+	The temperature derivative of Equation 106. This is not an official
+    DIPPR equation. It is usually used to obtain dHVP/dt.
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for Equation 106, see documentation for `eq106`
+
+	Returns
+	-------
+	float
+		Value of temperature derivative of DIPPR Equation 106 at `t` 
+        given `c`. 
+		Units: default DIPPR units for property described by `c`
+		divided by K. For HVP, J/(kmol*K)
+	""" 
+    x = eq106(tr,c)/tc*((np.log(1-tr)*(c[2] + 2*c[3]*tr + 3*c[4]*tr**2))-(c[1] + c[2]*tr + c[3]*tr**2 + c[4]*tr**3)/(1-tr))
+    return(x)  
+
+def eq107(t,c):
+	"""DIPPR Equation 107
+	
+	Y = c[0] + c[1]*((c[2]/t)/np.sinh(c[2]/t))**2 + \
+        c[3]*((c[4]/t)/np.cosh(c[4]/t))**2
+    
+    Property: ICP (J/(kmol*K))
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for the equation
+		c[0] : constant
+		c[1] : see equation above
+        c[2] : see equation above
+        c[3] : see equation above
+        c[4] : see equation above       
+        
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 107 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""
+    x = c[0] + c[1]*((c[2]/t)/np.sinh(c[2]/t))**2 + c[3]*((c[4]/t)/np.cosh(c[4]/t))**2
+    return(x)    
   
 def eq114(tau,c): # DIPPR Equation 114
   x = c[0]**2/tau + c[1] - 2*c[0]*c[2]*tau - c[0]*c[3]*tau**2 - 1/3*c[2]**2*tau**3 - 0.5*c[2]*c[3]*tau**4 - 1/5*c[3]**2*tau**5
