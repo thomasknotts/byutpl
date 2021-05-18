@@ -47,8 +47,8 @@ following.
 
   dippr.eq100(t,c)
 
-This would return the value of DIPPR equation 100 at temperature `t` for
-the coefficients found in array `c`.
+This would return the value of DIPPR Equation 100 at temperature `t` 
+for the coefficients found in array `c`.
 
 ======================================================================   
 INPUT PARAMETERS FOR FUNCTIONS                             
@@ -58,7 +58,7 @@ Symbol                Property                           Units
 t                     system temperature                 K              
 tr                    reduced system temperature         unitless       
 tau                   1 - tr                             unitless       
-c                     matrix of coefficients             DIPPR Default  
+c                     array of coefficients              DIPPR Default  
 ======================================================================   
 
 
@@ -67,20 +67,20 @@ AVAILABLE FUNCTIONS
 ======================================================================   
 Function              Return Value                       Units          
 ----------------------------------------------------------------------   
-eq100(t,c)            value of Eqn. 100 at t with c      DIPPR Default  
-eq101(t,c)            value of Eqn. 101 at t with c      DIPPR Default  
-eq102(t,c)            value of Eqn. 102 at t with c      DIPPR Default  
-eq104(t,c)            value of Eqn. 104 at t with c      DIPPR Default  
-eq105(t,c)            value of Eqn. 105 at t with c      DIPPR Default  
-eq106(tr,c)           value of Eqn. 106 at tr with c     DIPPR Default  
-eq107(t,c)            value of Eqn. 107 at t with c      DIPPR Default  
-eq114(tau,c)          value of Eqn. 114 at tau with c    DIPPR Default  
-eq115(t,c)            value of Eqn. 115 at t with c      DIPPR Default  
-eq116(tau,c)          value of Eqn. 116 at tau with c    DIPPR Default  
-eq119(tau,c)          value of Eqn. 119 at tau with c    DIPPR Default  
-eq123(tau,c)          value of Eqn. 123 at tau with c    DIPPR Default  
-eq124(tau,c)          value of Eqn. 124 at tau with c    DIPPR Default  
-eq127(t,c)            value of Eqn. 127 at t with c      DIPPR Default  
+eq100(t,c)            value of Eqn. 100 at t given c     DIPPR Default  
+eq101(t,c)            value of Eqn. 101 at t given c     DIPPR Default  
+eq102(t,c)            value of Eqn. 102 at t given c     DIPPR Default  
+eq104(t,c)            value of Eqn. 104 at t given c     DIPPR Default  
+eq105(t,c)            value of Eqn. 105 at t given c     DIPPR Default  
+eq106(tr,c)           value of Eqn. 106 at tr given c    DIPPR Default  
+eq107(t,c)            value of Eqn. 107 at t given c     DIPPR Default  
+eq114(tau,c)          value of Eqn. 114 at tau given c   DIPPR Default  
+eq115(t,c)            value of Eqn. 115 at t given c     DIPPR Default  
+eq116(tau,c)          value of Eqn. 116 at tau given c   DIPPR Default   
+eq119(tau,c)          value of Eqn. 119 at tau given c   DIPPR Default    
+eq123(tau,c)          value of Eqn. 123 at tau given c   DIPPR Default   
+eq124(tau,c)          value of Eqn. 124 at tau given c   DIPPR Default   
+eq127(t,c)            value of Eqn. 127 at t govem c     DIPPR Default  
 ====================================================================== 
 
 References
@@ -94,17 +94,91 @@ import numpy as np
 # DIPPR Equations                                                      #
 # -------------------------------------------------------------------- #
 
-def eq100(t,c): # DIPPR Equation 100
+def eq100(t,c):
+	"""DIPPR Equation 100
+	
+	A fourth order polynomial
+	Y = c[0] + c[1]*t + c[2}*t**2 + c[3]*t**3 + c[4}*t**4
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for the equation
+		c[0] : constant
+		c[1] : coefficient on t term
+		c[2] : coefficient on t**2 term
+		c[3] : coefficient on t**3 term
+		c[4] : coefficient on t**4 term
+	
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 100 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""  
     x = c[0] + c[1]*t + c[2]*t**2 + c[3]*t**3 + c[4]*t**4
-    return(x) # DIPPR default units for coefficients supplied
+    return(x) 
     
-def eq101(t,c): # DIPPR Equation 101
-  x = np.exp(c[0] + c[1]/t + c[2]*np.log(t) + c[3]*t**c[4])
-  return(x) # DIPPR default units for coefficients supplied 
+def eq101(t,c):
+	"""DIPPR Equation 101
+	
+	The Reidel equation
+	Y = e**(c[0] + c[1]/t + c[2}*ln(t) + c[3}*t**c[4])
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for the equation
+		c[0] : constant
+		c[1] : coefficient on 1/t term
+		c[2] : coefficient on ln(t) term
+		c[3] : coefficient on t**c[4] term
+		c[4] : power on `t` for c[3] term
+	
+	Returns
+	-------
+	float
+		Value of DIPPR Equation 101 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`.
+	"""  
+	x = np.exp(c[0] + c[1]/t + c[2]*np.log(t) + c[3]*t**c[4])
+	return(x)
 
-def eq101a(t,c): # DIPPR Equation 101a
-  x = -1.0*c[1]/t**2 + c[2]/t + c[3]*c[4]*t**(c[4]-1.0)
-  return(x) # DIPPR default units for coefficients supplied 
+def eq101a(t,c):
+	"""DIPPR Equation 101a
+	
+	The temperature derivative of the natural log of the
+	Reidel equation
+	dlnY/dt = -c[1]/t**2 + c[2}/t + c[3}c[4]*t**(c[4]-1)
+	
+	Parameters
+	----------
+	t : float
+		tempearture (K)
+		
+	c : 5x1 array 
+		the coefficients for Equation 101
+		c[0] : constant
+		c[1] : coefficient on 1/t term of Equation 101
+		c[2] : coefficient on ln(t) term of Equation 101
+		c[3] : coefficient on t**c[4] term of Equation 101
+		c[4] : power on `t` for c[3] term of Equation 101
+	
+	Returns
+	-------
+	float
+		Value of temperature derivative of the natural logarithm
+		of DIPPR Equation 101 at `t` given `c`. 
+		Units: default DIPPR units for property described by `c`
+		divided by K.
+	"""   x = -1.0*c[1]/t**2 + c[2]/t + c[3]*c[4]*t**(c[4]-1.0)
+  return(x)
 
 def eq102(t,c): # DIPPR Equation 102
   x = c[0]*t**c[1]/(1 + c[2]/t + c[3]/t**2)
