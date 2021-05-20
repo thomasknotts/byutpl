@@ -61,8 +61,8 @@ following.
   
   srk.vl(t,p,tc,pc,w)
 
-This would return the liquid molar volume from the SRK EOS at t and p
-for the compound described by tc, pc, and w.
+This would return the liquid molar volume from the SRK EOS at `t` and `p`
+for the compound described by `tc`, `pc`, and `w`.
 
 Many functions are available, but several are support functions that 
 are used by the main functions and are rarely called by the user.
