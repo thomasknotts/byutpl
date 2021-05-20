@@ -32,32 +32,42 @@
 # ======================================================================== #
 # Version 1.0 - February 2018                                              #
 # Version 1.1 - October 2019 Minor corrections to documentation of tsat.   #
-# Version 1.2 - February 2020 Added docstring and unit function            #
-# Version 1.3 - Changed name from waterproperties to water and added the   #
-#               module to byutpl package. Changed pressure-dependent       #
-#               functions to use Soave-Redlich-Kwong equation of state for #
-#               the vapor density.                                         #
+# Version 1.2 - February 2020 Added docstring and unit function.           #
+# Version 2.0 - May 2021 Changed name from waterproperties to water        #
+#               and added the module to byutpl package. Changed            #
+#               pressure-dependent functions to use Soave-Redlich-Kwong    #
+#               equation of state for real gas vapor heat capacity. Added  #
+#               vapor properties vdn, vcp, vnu, and vpr. Changed the name  #
+#               of pr to lpr and nu to lnu. Removed vdnsat.                #
 # ======================================================================== #
 """
 This library contains functions for the properties of water.
 The values come from the DIPPR(R) Sample database [1], 
-and the DIPPR(R) abbreviations are used. The saturated vapor density
-comes from solving the Soave-Redlich-Kwong equation of state.
+and the DIPPR(R) abbreviations are used. Vapor properties that are 
+dependent on pressure are obtained using the Soave-Redlich-Kwong equation
+of state.
 
 This module is part of the byutpl package. Import the module using
 
   import byutpl.properties.water as water
 
-When imported in this way, the properties can be called as   
+When imported in this way, constant properties can be called as   
 
-  water.tc
+  water.acen
   
-for constant properties like critical temperature or
+which returns the acentric factor. Temperature dependent properties
+can be called as
   
   water.vtc(t)
 
-for temperature-dependent properties like vapor thermal conductivity
-where `t` is temperature in units of K.
+which returns the vapor thermal conductivity at `t` where `t` is 
+temperature in units of K. Temperature and pressure dependent properties
+can be called as
+  
+  water.vcp(t,p)
+
+which returns the vapor heat capacity at `t` and `p` where 
+`t` is temperature in units of K and `p` is pressure in units of Pa.
     
 A complete list of properties, and the associated units, are found       
 below.                                                                   
@@ -67,21 +77,28 @@ Function    Return Value                             Input Value
 tc          critical temperature in K                none              
 pc          critical pressure in Pa                  none              
 vc          critical volume in m**3/mol              none              
-zc          critical compressibility factor          none              
+zc          critical compress. factor (unitless)     none              
 mw          molecular weight in kg/mol               none              
-acen        acentric factor                          none              
+acen        acentric factor (unitless)               none              
 ldn(t)      liquid density in kg/m**3                temperature in K  
-lcp(t)      liquid heat capacity in J/mol/K          temperature in K  
-ltc(t)      liquid thermal conductivity in W/m/K     temperature in K  
+lcp(t)      liquid heat capacity in J/(mol*K)        temperature in K  
+ltc(t)      liquid thermal conductivity in W/(m*K)   temperature in K  
 vp(t)       liquid vapor pressure in Pa              temperature in K  
 hvp(t)      heat of vaporization in J/mol            temperature in K  
-pr(t)       Prandtl number                           temperature in K  
+lpr(t)      liquid Prandtl number (unitless)         temperature in K  
 lvs(t)      liquid viscosity in Pa*s                 temperature in K  
-nu(t)       liquid kinematic viscosity in m**2/s     temperature in K  
+lnu(t)      liquid kinematic viscosity in m**2/s     temperature in K  
 tsat(p)     temperature at saturation in K           pressure in Pa    
 vvs(t)      vapor (steam) viscosity in Pa*s          temperature in K  
-vtc(t)      vapor (steam) therm. conductiv. in W/m/K temperature in K  
-vdnsat(t)   vapor (steam) sat. density in kg/m**3    temperature in K  
+vtc(t)      vapor (steam) therm. conduct. in W/(m*K) temperature in K  
+vdn(t,p)    vapor (steam) density in kg/m**3         temperature in K
+                                                     pressure in Pa
+vcp(t,p)    vapor (steam) isobaric heat capacity     temperature in K
+            in J/(mol*K)                             pressure in Pa
+vnu(t,p)    vapor (steam) kinematic viscosity        temperature in K
+            in m**2/s                                pressure in Pa                                                     
+vpr(t,p)    vapor (steam) Prandtl number (unitless)  temperature in K
+                                                     pressure in Pa                                                     
 
 References
 ----------
@@ -115,7 +132,7 @@ acen = 0.344861 # unitless
 mw = 0.01801528 # units of kg/mol
   
 def ldn(t):
-    """Liquid density of water 
+    """liquid density of water 
 	
     Liquid density of water from the DIPPR(R) correlation.
     (Correlation C: DIPPR Equation 119; valid from 273.16 - 647.096 K;
@@ -147,7 +164,7 @@ def ldn(t):
     return(y)
   
 def lcp(t):
-    """Liquid heat capacity of water 
+    """liquid heat capacity of water 
 	
     Liquid heat capacity of water from the DIPPR(R) correlation
     (Correlation A: DIPPR Equation 100; valid from 273.16 - 533.15 K;
@@ -171,7 +188,7 @@ def lcp(t):
 	"""
     c = np.array([2.7637E+05, -2.0901E+03, 8.1250E+00, -1.4116E-02, 9.3701E-06])
     y = dippr.eq100(t,c)
-    y = y / 1000 # convert from J/kmol/K to J/mol/K
+    y = y / 1000 # convert from J/(kmol*K) to J/(mol*K)
     return(y)
 
 def ltc(t):
@@ -202,7 +219,7 @@ def ltc(t):
     return(y)
 
 def vp(t):
-    """Liquid vapor pressure of water 
+    """liquid vapor pressure of water 
 	
     Liquid vapor pressure of water from the DIPPR(R) correlation
     (Correlation A: DIPPR Equation 101; valid from 273.16 - 647.096 K;
@@ -258,9 +275,11 @@ def hvp(t):
     return(y)
     
 def lvs(t): # liquid viscosity
-    r"""Liquid viscosity of water 
+    """liquid viscosity of water 
 	
     Liquid viscosity of water from the DIPPR(R) correlation
+    (Correlation A: DIPPR Equation 101; valid from 273.16 - 647.096 K;
+    uncertainty: < 3%)
 	
     Parameters
     ----------
@@ -278,16 +297,12 @@ def lvs(t): # liquid viscosity
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    A = -5.2843E+01
-    B = 3.7036E+03
-    C = 5.8660E+00
-    D = -5.8790E-29
-    E = 10.0000E+00
-    y = np.exp(A + B / t + C * np.log(t) + D * t**E)
-    return y # units of Pa*s
+    c = np.array([-5.2843E+01, 3.7036E+03, 5.8660E+00, -5.8790E-29, 10])
+    y = dippr.eq101(t,c)
+    return(y)
 
-def nu(t):
-    r"""Liquid kinematic viscosity of water 
+def lnu(t):
+    """liquid kinematic viscosity of water 
 	
     Liquid kinematic viscosity of water calculated from the lvs and ldn functions
     in this module.
@@ -308,10 +323,10 @@ def nu(t):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    return lvs(t)/ldn(t) # m**2/s
+    return(lvs(t)/ldn(t))
 
-def pr(t):
-    r"""Prandtl number of liquid water 
+def lpr(t):
+    """Prandtl number of liquid water 
 	
     Prandtl number of liquid water calculated from the lcp, lvs, and ltc functions
     in this module.
@@ -332,10 +347,10 @@ def pr(t):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    return lcp(t)*lvs(t)/ltc(t)/mw
+    return(lcp(t)*lvs(t)/ltc(t)/mw)
 
 def ftsat(t,p):
-    r"""Function supplied to fsolve in tsat function 
+    """Function supplied to fsolve in tsat function 
 	
     Function supplied to fsolve (in the f(x)=0 form) to solve for the 
     temperature at saturation for a given pressure.  This 
@@ -363,10 +378,10 @@ def ftsat(t,p):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    return vp(t) - p
+    return(vp(t) - p)
 
 def tsat(p):
-    r"""Saturated temperature for water
+    """saturated temperature for water
 	
     Saturation temperature of water for a given pressure 'p'.  It is
     the temperature for which the following equation is true:
@@ -395,10 +410,12 @@ def tsat(p):
     return(y[0])
     
 def vvs(t):
-    r"""Viscosity of vaporized water (steam) 
+    """viscosity of vaporized water (steam) 
 	
     Vapor viscosity of water (the viscosity of steam) at temperature `t`
     from the DIPPR(R) correlation.
+    (Correlation A: DIPPR Equation 102; valid from 273.16 - 1073.15 K;
+    uncertainty: < 3%)
 	
     Parameters
     ----------
@@ -417,15 +434,17 @@ def vvs(t):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    A = 1.7096E-08
-    B = 1.1146
-    return A*t**B
+    c = np.array([1.7096E-08, 1.1146, 0, 0])
+    y = dippr.eq102(t,c)
+    return(y)
 
 def vtc(t):
-    r"""Thermal conductivity of vaporized water (steam) 
+    """thermal conductivity of vaporized water (steam) 
 	
     The vapor thermal conductivity of water (the thermal conductivity of steam)
     at temperature `t` from the DIPPR(R) correlation.
+    (Correlation A: DIPPR Equation 102; valid from 273.16 - 1073.15 K;
+    uncertainty: < 3%)
 	
     Parameters
     ----------
@@ -445,41 +464,148 @@ def vtc(t):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    A = 6.2041E-06
-    B = 1.1146
-    return A*t**B
+    c = np.array([6.2041E-06, 1.3973, 0, 0])
+    y = dippr.eq102(t,c)
+    return(y)
 
-def vdnsat(t):
-    r"""Vapor density of saturated water (saturated steam) 
+def vdn(t,p):
+    """vapor density of water (steam) 
 	
-    The saturated vapor density of water (density of saturated steam)
-    at temperature `t`.
+    The vapor density of water (density of steam) at temperature `t` and
+    pressure `p` from the Soave-Redlich-Kwong equation of state. This 
+    will not be as accurate as the value from the steam tables.
+    (valid from 273.16 - 1073.15 K; uncertainty at saturation:
+    < 0.1% at 300 K, < 1.5% at 400 K, < 3% at 500 K, < 10% at 600 K)
+
 	
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the saturated vapor density of water
-    	(the density of saturated steam)
+        The temperature (K) at which to evaluate the vapor density of water
+    	(the density of steam)
+
+    p : float
+        The pressure (Pa) at which to evaluate the vapor density of water
+    	(the density of steam)
 
     Returns
     -------
     float
-        The saturated vapor density of water (kg/m**3) (the density of steam) at `t`
+        The vapor density of water (kg/m**3) (the density of steam) at `t`
+        and `p`.
+	"""   
+    v = srk.vv(t,p,tc,pc,acen)
+    v = v / mw # convert from m**3/mol to m**3/kg
+    return(1/v)
+    
+def vcp(t,p):
+    """vapor heat capacity water (steam)
+	
+    Heat capacity of vapor water (steam) calculated from the DIPPR(R) 
+    correlation for ideal gas heat capacity and the residual property
+    from the Soave-Redlich-Kwong equation of state.
+    (ICP Correlation A: DIPPR Equation 107; valid from 100 - 2273.15 K;
+    uncertainty: < 3%)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the kinematic 
+        viscosity of vapor water (steam)
+
+    p : float
+        The pressure (Pa) at which to evaluate the kinematic viscosity
+        of vapor water (steam)
+
+    Returns
+    -------
+    float
+        The heat capacity (J/(mol*K)) of vapor water (steam)
+        at `t` and `p`.
 
     References
     ----------
-    .. T. L. Bergman, A. S. Lavine, F. P. Incropera, D. P. Dewitt, 
-       Fundamental of Heat and Mass Transfer 7th edition,
-       John Wiley & Sons Inc., Hoboken, NJ (2011).
-	"""   
-    tdata = [273.15,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,373.15,375,380,385,390,400,410,420,430]
-    ddata = [206.3,181.7,130.4,99.4,69.7,51.94,39.13,29.74,22.93,17.82,13.98,11.06,8.82,7.09,5.74,4.683,3.846,3.18,2.645,2.212,1.861,1.679,1.574,1.337,1.142,0.98,0.731,0.553,0.425,0.331]
-    tck = interpolate.splrep(tdata,ddata)
-    y=interpolate.splev(t,tck)
-    return 1.0/y
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    c = np.array([33363, 26790, 2610.5, 8896, 1169])
+    icp = dippr.eq107(t,c) / 1000 # convert from J/(kmol*K) to J/(mol*K)
+    x = icp + srk.cprv(t,p,tc,pc,acen)
+    return(x)
+
+def vnu(t,p):
+    """vapor kinematic viscosity of water (steam)
+	
+    Kinematic viscosity of vapor water (steam) calculated from the vvs and
+    vdn functions in this module. The calculation uses the Soave-Redlich-
+    Kwong equation of state for the vapor density which is not as accurate
+    as the values from the the steam tables.
+    (valid from 273.16 - 647.096 K; uncertainty at saturation:
+    < 0.1% at 300 K, < 1.5% at 400 K, < 3% at 500 K, < 10% at 600 K)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the kinematic 
+        viscosity of vapor water (steam)
+
+    p : float
+        The pressure (Pa) at which to evaluate the kinematic viscosity
+        of vapor water (steam)
+
+    Returns
+    -------
+    float
+        The kinematic viscosity (m**2/s) of vapor water (steam)
+        at `t` and `p`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(lvs(t)/ldn(t))
+
+def vpr(t, p):
+    """Prandtl number of vapor water (steam)
+	
+    Prandtl number of vapor water (steam) calculated from the vcp, vvs, 
+    and vtc functions in this module. The calculation uses the Soave-
+    Redlich-Kwong equation of state to correct the ideal gas heat capacity
+    to the real gas at `t` and `p`. This is not as accurate as the values
+    from the the steam tables.
+    (valid from 273.16 - 647.096 K; uncertainty at saturation:
+    < 0.1% at 300 K, < 1.5% at 400 K, < 3% at 500 K, < 10% at 600 K)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the Prandtl number of vapor
+        water (steam)
+
+    p : float
+        The pressure (Pa) at which to evaluate the Prandtl number of vapor
+        water (steam)
+
+    Returns
+    -------
+    float
+        The Prandtl number (dimensionless) of vapor water (steam) at `t`
+        and `p`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(vcp(t,p)*vvs(t)/vtc(t)/mw)
+
 
 def unit(key):
-    r"""Returns the units of `key` 
+    """Returns the units of `key` 
 	
     Returns the units of the constant or function in this module identified
     by 'key'
@@ -524,11 +650,11 @@ def unit(key):
         return('Pa')
     if key == 'hvp':
         return('J/mol')
-    if key == 'pr':
+    if key == 'lpr':
         return('unitless')
     if key == 'lvs':
         return('Pa*s')
-    if key == 'nu':
+    if key == 'lnu':
         return('m**2/s')
     if key == 'tsat':
         return('K')
@@ -537,6 +663,8 @@ def unit(key):
     if key == 'vtc':
         return('W m**-1 K**-1')
     if key == 'vdnsat':
+        return('kg/m**3')
+    if key == 'vdn':
         return('kg/m**3')
     else:
         return('"'+key+'" is not a constant or function in this module.')

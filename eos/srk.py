@@ -29,7 +29,7 @@
 # ======================================================================== #
 # Version 1.0 - October 2019                                               #
 # Version 2.0 - May 2021 Changed name form srkprops to srk;                #
-#               Added docstring                                            #
+#               Added docstring; added residual heat capacities            #
 # ======================================================================== #
 """
 This module contains functions that calculate thermodynamic properties  
@@ -93,16 +93,18 @@ vl(t,p,tc,pc,w)     liquid molar volume                     m**3/mol
 vv(t,p,tc,pc,w)     vapor molar volume                      m**3/mol    
 zl(t,p,tc,pc,w)     liquid compressibility                  unitless    
 zv(t,p,tc,pc,w)     vapor compressibility                   unitless
-hrl(t,p,tc,pc,w)    liquid residual enthalpy                J/mol 
-hrv(t,p,tc,pc,w)    vapor residual enthalpy                 J/mol   
-srl(t,p,tc,pc,w)    liquid residual entropy                 J/mol/K 
-srv(t,p,tc,pc,w)    vapor residual entropy                  J/mol/K 
+hrl(t,p,tc,pc,w)    liquid residual enthalpy                J/(mol*K) 
+hrv(t,p,tc,pc,w)    vapor residual enthalpy                 J/(mol*K)   
+srl(t,p,tc,pc,w)    liquid residual entropy                 J/(mol*K) 
+srv(t,p,tc,pc,w)    vapor residual entropy                  J/(mol*K) 
 arl(t,p,tc,pc,w)    liquid residual Helmholtz energy        J/mol 
 arv(t,p,tc,pc,w)    vapor residual Helmholtz energy         J/mol 
 grl(t,p,tc,pc,w)    liquid residual Gibbs energy            J/mol 
 grv(t,p,tc,pc,w)    vapor residual Gibbs energy             J/mol 
 lnphil(t,p,tc,pc,w) natural log liquid fugacity coefficient unitless
 lnphiv(t,p,tc,pc,w) natural log vapor fugacity coefficient  unitless
+cprl(t,p,tc,pc,w)   liquid residual isobaric heat capacity  J/(mol*K)
+cprv(t,p,tc,pc,w)   vapor residual isobaric heat capacity   J/(mol*K)
 ======================================================================
 
 The residual for property J is defined as
@@ -255,7 +257,7 @@ def ThetaPrime(t,p,tc,pc,w):
     return(x)
 
 def dThetadT(t,tc,pc,w):
-    """ first temperature derivative of the ThetaPrime parameter for the
+    """ first temperature derivative of the Theta parameter for the
     SRK EOS in units of Pa*m**6/(mol**2*K)
     
     All cubic equations of state can be placed into a generalized dimensionless
@@ -300,7 +302,7 @@ def dThetadT(t,tc,pc,w):
     return(x)
 
 def d2ThetadT2(t,tc,pc,w):
-    """ second temperature derivative of the ThetaPrime parameter for the
+    """ second temperature derivative of the Theta parameter for the
     SRK EOS in units of Pa*m**6/(mol**2*K**2)
     
     All cubic equations of state can be placed into a generalized dimensionless
@@ -334,7 +336,8 @@ def d2ThetadT2(t,tc,pc,w):
     Returns
     -------
     float
-        dThetadT = -a*kappa*(alpha/(t*tc))**0.5    (Pa*m**6/(mol**2*K**2))
+        dThetadT = 0.5*a(tc,pc)*kappa(w)/sqrttc/t*(np.sqrt(alpha(t,tc,w)/t) +
+        kappa(w)/sqrttc)    (Pa*m**6/(mol**2*K**2))
 
     References
     ----------
@@ -1169,5 +1172,157 @@ def grv(t,p,tc,pc,w):
     """    
     x = rg*t*lnphiv(t,p,tc,pc,w)
     return(x)
-    
 
+def cvrv(t,p,tc,pc,w):
+    """vapor residual isochoric heat capacity from the SRK EOS in units of
+       J/(mol*K)
+
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+        
+    p : float
+        system pressure (Pa)
+        
+    tc : float
+        critical temperature of the compound (K)
+    
+    pc : float
+        critical pressure of the compound (Pa)
+        
+    w : float
+        acentric factor of the compound (unitless)
+        
+    Returns
+    -------
+    float
+        vapor residual isochoric heat capcity of the system at `t`
+        and `p` for the compound described by `tc`, `pc`, and `w`
+        (J/(mol*K))
+        
+        If only one phase exists for the input conditions, both the vapor
+        value (from this function) and the liquid value 
+        (from srk.cprl(t,p,tc,pc,w)) will be equal. 
+    """
+    v = vv(t,p,tc,pc,w)
+    bb = b(tc,pc)
+    x = t/bb*d2ThetadT2(t,tc,pc,w)*np.log((v + bb)/v)
+    return(x)
+    
+def cvrl(t,p,tc,pc,w):
+    """liquid residual isochoric heat capacity from the SRK EOS in units of
+       J/(mol*K)
+
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+        
+    p : float
+        system pressure (Pa)
+        
+    tc : float
+        critical temperature of the compound (K)
+    
+    pc : float
+        critical pressure of the compound (Pa)
+        
+    w : float
+        acentric factor of the compound (unitless)
+        
+    Returns
+    -------
+    float
+        liquid residual isochoric heat capcity of the system at `t`
+        and `p` for the compound described by `tc`, `pc`, and `w`
+        (J/(mol*K))
+        
+        If only one phase exists for the input conditions, both the liquid
+        value (from this function) and the vapor value 
+        (from srk.cprv(t,p,tc,pc,w)) will be equal. 
+    """
+    v = vl(t,p,tc,pc,w)
+    bb = b(tc,pc)
+    x = t/bb*d2ThetadT2(t,tc,pc,w)*np.log((v + bb)/v)
+    return(x)
+    
+def cprv(t,p,tc,pc,w):
+    """vapor residual isobaric heat capacity from the SRK EOS in units of
+       J/(mol*K)
+
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+        
+    p : float
+        system pressure (Pa)
+        
+    tc : float
+        critical temperature of the compound (K)
+    
+    pc : float
+        critical pressure of the compound (Pa)
+        
+    w : float
+        acentric factor of the compound (unitless)
+        
+    Returns
+    -------
+    float
+        vapor residual isobaric heat capcity of the system at `t`
+        and `p` for the compound described by `tc`, `pc`, and `w`
+        (J/(mol*K))
+        
+        If only one phase exists for the input conditions, both the vapor
+        value (from this function) and the liquid value 
+        (from srk.cprl(t,p,tc,pc,w)) will be equal. 
+    """
+    v = vv(t,p,tc,pc,w)
+    bb = b(tc,pc)
+    x = cvrv(t,p,tc,pc,w) - \
+        t*(rg/(v - bb) - dThetadT(t,tc,pc,w)/(v*(v + bb)))**2/ \
+        (-rg*t/(v - bb)**2 + \
+        (a(tc,pc)*alpha(t,tc,w)*(2*v + bb))/(v*(v + bb))**2) - rg
+    return(x)
+    
+def cprl(t,p,tc,pc,w):
+    """liquid residual isobaric heat capacity from the SRK EOS in units of
+       J/(mol*K)
+
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+        
+    p : float
+        system pressure (Pa)
+        
+    tc : float
+        critical temperature of the compound (K)
+    
+    pc : float
+        critical pressure of the compound (Pa)
+        
+    w : float
+        acentric factor of the compound (unitless)
+        
+    Returns
+    -------
+    float
+        liquid residual isobaric heat capcity of the system at `t`
+        and `p` for the compound described by `tc`, `pc`, and `w`
+        (J/(mol*K))
+        
+        If only one phase exists for the input conditions, both the liquid
+        value (from this function) and the vapor value 
+        (from srk.cprv(t,p,tc,pc,w)) will be equal. 
+    """
+    v = vl(t,p,tc,pc,w)
+    bb = b(tc,pc)
+    x = cvrl(t,p,tc,pc,w) - \
+        t*(rg/(v - bb) - dThetadT(t,tc,pc,w)/(v*(v + bb)))**2/ \
+        (-rg*t/(v - bb)**2 + \
+        (a(tc,pc)*alpha(t,tc,w)*(2*v + bb))/(v*(v + bb))**2) - rg
+    return(x)
