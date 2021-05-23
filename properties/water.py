@@ -622,9 +622,9 @@ def unit(key):
 
     References
     ----------
-    .. T. L. Bergman, A. S. Lavine, F. P. Incropera, D. P. Dewitt, 
-       Fundamental of Heat and Mass Transfer 7th edition,
-       John Wiley & Sons Inc., Hoboken, NJ (2011).
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     if type(key) !=str:
         return('The parameter must be a string.')
@@ -662,10 +662,12 @@ def unit(key):
         return('Pa*s')
     if key == 'vtc':
         return('W m**-1 K**-1')
-    if key == 'vdnsat':
-        return('kg/m**3')
+    if key == 'vnu':
+        return('m**2/s')
     if key == 'vdn':
         return('kg/m**3')
+    if key == 'vpr':
+        return('unitless')
     else:
         return('"'+key+'" is not a constant or function in this module.')
   
