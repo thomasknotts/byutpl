@@ -72,7 +72,7 @@ which returns the vapor heat capacity at `t` and `p` where
 A complete list of properties, and the associated units, are found       
 below.                                                                   
 
-Function    Return Value                             Input Value         
+Function    Return Value                             Input Value(s)         
 ---------   --------------------------------------   ----------------- 
 tc          critical temperature in K                none              
 pc          critical pressure in Pa                  none              
@@ -510,11 +510,11 @@ def vcp(t,p):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the kinematic 
-        viscosity of vapor water (steam)
+        The temperature (K) at which to evaluate the heat 
+        capacity of vapor water (steam)
 
     p : float
-        The pressure (Pa) at which to evaluate the kinematic viscosity
+        The pressure (Pa) at which to evaluate the heat capacity
         of vapor water (steam)
 
     Returns
@@ -566,7 +566,7 @@ def vnu(t,p):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    return(lvs(t)/ldn(t))
+    return(vvs(t)/vdn(t,p))
 
 def vpr(t, p):
     """Prandtl number of vapor water (steam)
