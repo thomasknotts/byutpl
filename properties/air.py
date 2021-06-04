@@ -1,13 +1,17 @@
 # Copyright (C) 2018 Thomas Allen Knotts IV - All Rights Reserved          #
-# This file, air.py, is a python library of the                            #
+# This file, air.py, is a python module of the                             #
 # thermophysical properties of air.  The properties are taken from tables  #
-# of the two textbooks listed in the References section below.             #
+# found in the two textbooks listed in the References section below.       #
+# The data in these tables are cited from older references, and            #
+# more accurate properties values are available for other sources such as  #
+# DIPPR or NIST REFPROP. This module is intended for pedagogical purposes  #
+# only.                                                                    #
 #                                                                          #
 # air.py is distributed in the hope that it will be useful,                #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of           #
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                     #
 #                                                                          #
-# All published work which utilizes this library should cite the           #
+# All published work which utilizes this module should cite the            #
 # works given in the References section below.                             #
 #                                                                          #
 # ======================================================================== #
@@ -23,10 +27,10 @@
 # Version 1.1 - February 2020 Added docstring and unit function            #
 # Version 2.0 - May 2021 Changed name from airproperties to air and        #
 #               and added the module to the byutpl package. Changed        #
-#               pressure-dependent functions to use Soave-Redlich-Kwong    #
-#               equation of state. Changed the source of the data from     #
-#               DIPPR to textbooks as air is not a compound in the sample  #
-#               (freely available) version of the DIPPR database.          #
+#               pressure-dependent functions to use the Soave-Redlich-     #
+#               Kwong equation of state. Changed the source of the data    #
+#               from DIPPR to textbooks as air is not a compound in the    #
+#               Sample (freely available) version of the DIPPR database.   #
 # ======================================================================== #
 
 """
@@ -55,6 +59,11 @@ can be called as
     
 which returns the vapor heat capacity at `t` and `p` where 
 `t` is temperature in units of K and `p` is pressure in units of Pa.
+
+(The "vapor" designation is meaningless as air is defined as a vapor, 
+but other compounds in the byutpl package have "vapor" and "liquid"
+properties. The "vapor" nomenclature is kept for consistency 
+with these other compounds.)
 
 A complete list of properties, and the associated units, are found       
 below.                                                                   
@@ -87,7 +96,12 @@ icp and the residual heat capacity calculated from the Soave-Redlich-
 Kwong equation of state. Values for vtc and vvs are calculated from
 cubic splines of the tabular data found in [2]. vdn is from the 
 Soave-Redlich-Kwong equation of state. vnu, valpha, and vpr are
-obtained from the other properties. 
+obtained from the other properties.
+
+The data in the tables in the textbooks are from older references, and
+more accurate properties values are available for other sources such as
+DIPPR or NIST REFPROP. This module is intended for pedagogical purposes
+only.
 
 References
 ----------
@@ -156,10 +170,11 @@ def vtc(t):
     """vapor thermal conductivity of air
 
     Thermal conductivity of air from a cubic spline of the tabular 
-    data in Bergman, Lavine, Incropera, and Dewitt.
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" thermal 
-    conductivities.  The "vapor" nomenclature is kept for consistency 
+    data in Bergman, Lavine, Incropera, and Dewitt [1].
+
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
     with these other compounds.)
     
     (valid from 100 - 3000 K; predicted uncertainty: >5%)
@@ -195,11 +210,12 @@ def vvs(t):
     """vapor viscosity of air
 
     Vapor viscosity of air from a cubic spline of the tabular data in
-    Bergman, Lavine, Incropera, and Dewitt.
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" viscosities. 
-    The "vapor" nomenclature is kept for consistency with these other
-    compounds.)
+    Bergman, Lavine, Incropera, and Dewitt [1].
+
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
+    with these other compounds.)
     
     (valid from 100 - 3000 K; predicted uncertainty: >10%)
 
@@ -235,10 +251,11 @@ def vdn(t,p):
 	
     The vapor density of air at temperature `t` and pressure `p` from 
     the Soave-Redlich-Kwong equation of state.
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" densities.
-    The "vapor" nomenclature is kept for consistency with these other 
-    compounds.)
+    
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
+    with these other compounds.)
     
     Parameters
     ----------
@@ -261,10 +278,11 @@ def vnu(t,p):
     """vapor kinematic viscosity of air
 	
     Vapor kinematic viscosity of air calculated from the vvs and vdn 
-    functions in this module.     
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" kinematic 
-    viscosities.  The "vapor" nomenclature is kept for consistency 
+    functions in this module.
+    
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
     with these other compounds.)
 	
     Parameters
@@ -300,9 +318,9 @@ def valpha(t, p):
     Vapor thermal diffusivity of air calculated from the vtc, vdn, and icp 
     functions in this module. 
     
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" thermal 
-    diffusivities.  The "vapor" nomenclature is kept for consistency 
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
     with these other compounds.)
 	
     Parameters
@@ -333,10 +351,11 @@ def vpr(t,p):
 
     Vapor Prandtl number of air calculated from the vnu and valpha
     functions in this module.
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" Prandtl 
-    numbers.  The "vapor" nomenclature is kept for consistency 
-    with these other compounds.)    
+
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
+    with these other compounds.)
 	
     Parameters
     ----------
@@ -367,10 +386,10 @@ def vcp(t,p):
     Vapor capacity of air calculated from icp and the residual property
     from the Soave-Redlich-Kwong equation of state.
 
-    (The "vapor" part is meaningless as air is defined as a vapor, but 
-    other compounds in this package have "vapor" and "liquid" heat 
-    capacities. The "vapor" nomenclature is kept for consistency 
-    with these other compounds.)    
+    (The "vapor" designation is meaningless as air is defined as a vapor, 
+    but other compounds in the byutpl package have "vapor" and "liquid"
+    properties. The "vapor" nomenclature is kept for consistency 
+    with these other compounds.) 
 	
     Parameters
     ----------
@@ -429,6 +448,8 @@ def unit(key): # returns the units of key
     if key == 'mw':
         return('kg/mol')
     if key == 'icp':
+        return('J mol**-1 K**-1')
+    if key == 'vcp':
         return('J mol**-1 K**-1')
     if key == 'vtc':
         return('W m**-1 K**-1')

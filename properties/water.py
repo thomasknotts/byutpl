@@ -1,5 +1,5 @@
 # Copyright (C) 2018 Thomas Allen Knotts IV - All Rights Reserved          #
-# This file, water.py, is a python library of the                          #
+# This file, water.py, is a python module of the                           #
 # thermophysical properties of liquid water.  The properties, both         #
 # constant and temperature-dependent, are taken from the DIPPR(R) Sample   #
 # database which can be accessed at <https://dippr.aiche.org>.             #
@@ -15,7 +15,7 @@
 # along with thermoproperties.py.  If not, see                             #
 # <http://www.gnu.org/licenses/>.                                          #
 #                                                                          #
-# All published work which utilizes this library, or other property data   #
+# All published work which utilizes this module, or other property data    #
 # from the DIPPR(R) database, should include the citation below.           #
 # R. L. Rowley, W. V. Wilding, J. L. Oscarson, T. A. Knotts, N. F. Giles,  #
 # DIPPR® Data Compilation of Pure Chemical Properties, Design Institute    #
@@ -141,7 +141,7 @@ def ldn(t):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the liquid density of water
+        The temperature (K) at which to evaluate the liquid density of water.
 
     Returns
     -------
@@ -173,12 +173,14 @@ def lcp(t):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the liquid heat capacity of water
+        The temperature (K) at which to evaluate the liquid heat capacity
+        of water.
 
     Returns
     -------
     float
-        The value of the liquid heat capacity (J mol**-1 K**-1) of water at `t`.
+        The value of the liquid heat capacity (J mol**-1 K**-1) of water at
+        `t`.
 
     References
     ----------
@@ -192,7 +194,7 @@ def lcp(t):
     return(y)
 
 def ltc(t):
-    """Liquid thermal conductivity of water 
+    """liquid thermal conductivity of water 
 	
     Liquid thermal conductivity of water from the DIPPR(R) correlation
     (Correlation A: DIPPR Equation 100; valid from 273.16 - 633.15 K;
@@ -201,7 +203,8 @@ def ltc(t):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the liquid thermal conductivity of water
+        The temperature (K) at which to evaluate the liquid thermal
+        conductivity of water.
 
     Returns
     -------
@@ -228,7 +231,8 @@ def vp(t):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the liquid vapor pressure of water
+        The temperature (K) at which to evaluate the liquid vapor pressure of
+        water.
 
     Returns
     -------
@@ -255,7 +259,8 @@ def hvp(t):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the heat of vaporization of water
+        The temperature (K) at which to evaluate the heat of vaporization of
+        water.
 
     Returns
     -------
@@ -284,7 +289,8 @@ def lvs(t): # liquid viscosity
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the liquid viscosity of water
+        The temperature (K) at which to evaluate the liquid viscosity of
+        water.
 
     Returns
     -------
@@ -304,13 +310,14 @@ def lvs(t): # liquid viscosity
 def lnu(t):
     """liquid kinematic viscosity of water 
 	
-    Liquid kinematic viscosity of water calculated from the lvs and ldn functions
-    in this module.
+    Liquid kinematic viscosity of water calculated from the lvs and ldn
+    functions in this module.
 	
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the liquid kinematic viscosity of water
+        The temperature (K) at which to evaluate the liquid kinematic 
+        viscosity of water.
 
     Returns
     -------
@@ -328,13 +335,14 @@ def lnu(t):
 def lpr(t):
     """Prandtl number of liquid water 
 	
-    Prandtl number of liquid water calculated from the lcp, lvs, and ltc functions
-    in this module.
+    Prandtl number of liquid water calculated from the lcp, lvs, and ltc
+    functions in this module.
 	
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the Prandtl number of liquid water
+        The temperature (K) at which to evaluate the Prandtl number of
+        liquid water.
 
     Returns
     -------
@@ -392,7 +400,7 @@ def tsat(p):
     Parameters
     ----------
     p : float
-        The pressure (Pa) at which to find the saturated temperature
+        The pressure (Pa) at which to find the saturated temperature.
 
     Returns
     -------
@@ -421,7 +429,7 @@ def vvs(t):
     ----------
     t : float
         The temperature (K) at which to evaluate the vapor viscosity of water
-    	(the viscosity of steam)
+    	(the viscosity of steam).
 
     Returns
     -------
@@ -449,14 +457,14 @@ def vtc(t):
     Parameters
     ----------
     t : float
-        The temperature (K) at which to evaluate the vapor thermal conductivity of water
-    	(the thermal conductivity of steam)
+        The temperature (K) at which to evaluate the vapor thermal conductivity
+        of water (the thermal conductivity of steam).
 
     Returns
     -------
     float
         The vapor thermal conductivity of water (W m**-1 K**-1) 
-    	(the thermal conductivity of steam) at `t`
+    	(the thermal conductivity of steam) at `t`.
 
     References
     ----------
@@ -482,11 +490,11 @@ def vdn(t,p):
     ----------
     t : float
         The temperature (K) at which to evaluate the vapor density of water
-    	(the density of steam)
+    	(the density of steam).
 
     p : float
         The pressure (Pa) at which to evaluate the vapor density of water
-    	(the density of steam)
+    	(the density of steam).
 
     Returns
     -------
@@ -511,11 +519,11 @@ def vcp(t,p):
     ----------
     t : float
         The temperature (K) at which to evaluate the heat 
-        capacity of vapor water (steam)
+        capacity of vapor water (steam).
 
     p : float
         The pressure (Pa) at which to evaluate the heat capacity
-        of vapor water (steam)
+        of vapor water (steam).
 
     Returns
     -------
@@ -548,11 +556,11 @@ def vnu(t,p):
     ----------
     t : float
         The temperature (K) at which to evaluate the kinematic 
-        viscosity of vapor water (steam)
+        viscosity of vapor water (steam).
 
     p : float
         The pressure (Pa) at which to evaluate the kinematic viscosity
-        of vapor water (steam)
+        of vapor water (steam).
 
     Returns
     -------
@@ -583,11 +591,11 @@ def vpr(t, p):
     ----------
     t : float
         The temperature (K) at which to evaluate the Prandtl number of vapor
-        water (steam)
+        water (steam).
 
     p : float
         The pressure (Pa) at which to evaluate the Prandtl number of vapor
-        water (steam)
+        water (steam).
 
     Returns
     -------
@@ -613,12 +621,13 @@ def unit(key):
     Parameters
     ----------
     key : string
-        The name of the constant or function in this module for which the units are needed.
+        The name of the constant or function in this module for which the
+        units are needed.
 
     Returns
     -------
     string
-        The units for the constant or function identified by `key`
+        The units for the constant or function identified by `key`.
 
     References
     ----------
@@ -643,6 +652,8 @@ def unit(key):
     if key == 'ldn':
         return('kg/m**3')
     if key == 'lcp':
+        return('J mol**-1 K**-1')
+    if key == 'vcp':
         return('J mol**-1 K**-1')
     if key == 'ltc':
         return('W m**-1 K**-1')
