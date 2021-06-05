@@ -109,7 +109,6 @@ References
 
 import numpy as np
 from scipy.optimize import fsolve
-from scipy import interpolate
 import byutpl.eos.srk as srk
 import byutpl.equations.dippreqns as dippr
 
