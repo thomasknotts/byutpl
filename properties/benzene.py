@@ -245,51 +245,258 @@ def vp(t):
     y = dippr.eq101(t,c)
     return(y)
     
-def hvp(t): # heat of vaporization
-    A = 50007000
-    B = 0.65393
-    C = -0.65393
-    D = 0.029569
+def hvp(t):
+    """heat of vaporization of benzene 
+	
+    Heat of vaporization of benzene from the DIPPR(R) correlation
+    (Correlation A: DIPPR Equation 106; valid from 278.68 — 562.05 K;
+    uncertainty: < 1%)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the heat of vaporization of
+        benzene.
+
+    Returns
+    -------
+    float
+        The heat of vaporization (J/mol) of benzene at `t`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    c = np.array([50007000,0.65393,-0.27698,0.029569,0.0])
     tr = t/tc
-    y = A * (1.0-tr)**(B + C * tr + D * tr**2)
+    y = dippr.eq106(tr,c)
     y = y / 1000 # convert from J/kmol to J/mol
-    return y # J/mol
+    return(y)
     
-def lvs(t): # liquid viscosity
-    A = 7.5117
-    B = 294.68
-    C = -2.794
-    D = 0
-    E = 0
-    y = np.exp(A + B / t + C * np.log(t) + D * t**E)
-    return y # units of Pa*s
+def lvs(t):
+    """liquid viscosity of benzene 
+	
+    Liquid viscosity of benzene from the DIPPR(R) correlation
+    (Correlation A: DIPPR Equation 101; valid from 278.68 - 545 K;
+    uncertainty: < 5%)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the liquid viscosity of
+        benzene.
 
-def nu(t): # kinematic liquid viscosity
-    return lvs(t)/ldn(t) # m**2/s
+    Returns
+    -------
+    float
+        The liquid viscosity (Pa*s) of benzene at `t`.
 
-def lpr(t): # liquid Prandtl number
-    return lcp(t)*lvs(t)/ltc(t)/mw # unitless
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    c = np.array([7.5117,294.68,-2.794,0,0])
+    y = dippr.eq101(t,c)
+    return(y)
 
-def ftsat(t,p): # function to calculate tsat with fsolve
-    return vp(t) - p
+def lnu(t):
+    """liquid kinematic viscosity of benzene 
+	
+    Liquid kinematic viscosity of benzene calculated from the lvs and ldn
+    functions in this module.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the liquid kinematic 
+        viscosity of benzene.
 
-def tsat(p): # saturation temperature (K) at pressure P (Pa)
+    Returns
+    -------
+    float
+        The liquid kinematic viscosity (m**2/s) of benzene at `t`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(lvs(t)/ldn(t))
+
+def lpr(t):
+    """Prandtl number of liquid benzene 
+	
+    Prandtl number of liquid benzene calculated from the lcp, lvs, and ltc
+    functions in this module.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the Prandtl number of
+        liquid benzene.
+
+    Returns
+    -------
+    float
+        The Prandtl number (dimensionless) of liquid benzene at `t`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return lcp(t)*lvs(t)/ltc(t)/mw
+
+def ftsat(t,p):
+    """function supplied to fsolve in tsat function 
+	
+    Function supplied to fsolve (in the f(x)=0 form) to solve for the 
+    temperature at saturation for a given pressure.  This 
+    function is of little use to users.  Users should use 
+    the function tsat.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the function.  It is
+    	the "x" value for which fsolve solves.
+	
+    p : float
+    	The pressure (Pa) at which the saturated temperature is desired.
+
+    Returns
+    -------
+    float
+        The value of the function supplied to fsolve.  This value will be 
+    	zero if 't' is the saturated temperature for `p`. 
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(vp(t) - p)
+
+def tsat(p):
+    """saturated temperature for benzene
+	
+    Saturation temperature of benzene for a given pressure 'p'.  It is
+    the temperature for which the following equation is true:
+    vp(t)= `p`
+    where vp is the function in this module and t is the value
+    this function (tsat) returns.
+	
+    Parameters
+    ----------
+    p : float
+        The pressure (Pa) at which to find the saturated temperature.
+
+    Returns
+    -------
+    float
+        The temperature (K) of benzene at saturation at pressure `p`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
     x = 700 # guess in K
     y = fsolve(ftsat,x,p)
-    return(y[0]) # K
+    return(y[0])
     
-def vvs(t): # vapor viscosity
-    A = 0.00000003134
-    B = 0.9676
-    C = 7.9
-    return (A*t**B)/(1+C/t) # Pa*s
+def vvs(t):
+    """vapor viscosity of benzene
+	
+    Vapor viscosity of benzene at temperature `t` from the DIPPR(R)
+    correlation.
+    (Correlation A: DIPPR Equation 102; valid from 278.68 — 1000 K;
+    uncertainty: < 3%)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the vapor viscosity of
+        benzene.
 
-def vtc(t): # vapor thermal conductivity
-    A = 0.00001652
-    B = 1.3117
-    C = 491
-    return (A*t**B)/(1+C/t) # W/m/K   
+    Returns
+    -------
+    float
+        The vapor viscosity of benzene at `t`.
 
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    c = np.array([3.134E-08,0.9676,7.9,0])
+    y = dippr.eq102(t,c)
+    return(y)
+
+def vtc(t):
+    """vapor thermal conductivity of benzene
+	
+    The vapor thermal conductivity of benzene at temperature `t`
+    from the DIPPR(R) correlation.
+    (Correlation A: DIPPR Equation 102; valid from 339.15 — 1000 K;
+    uncertainty: < 5%)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the vapor thermal
+        conductivity of benzene.
+
+    Returns
+    -------
+    float
+        The vapor thermal conductivity of benzene (W m**-1 K**-1) 
+        at `t`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    c = np.array([1.652E-05,1.3117,491,0.0])
+    y = dippr.eq102(t,c)
+    return(y)
+
+def vdn(t,p):
+    """vapor density of benzene
+	
+    The vapor density of benzene at temperature `t` and
+    pressure `p` from the Soave-Redlich-Kwong equation of state. 
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the vapor density of
+        benzene.
+
+    p : float
+        The pressure (Pa) at which to evaluate the vapor density of
+        benzene.
+
+    Returns
+    -------
+    float
+        The vapor density of benzene (kg/m**3) at `t` and `p`.
+	"""   
+    v = srk.vv(t,p,tc,pc,acen)
+    v = v / mw # convert from m**3/mol to m**3/kg
+    return(1/v)
+    
 def icp(t): # ideal gas heat capacity
     A = 33257.8886
     B = 51444.739266

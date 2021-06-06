@@ -249,7 +249,7 @@ def vp(t):
     return(y)
     
 def hvp(t):
-    """Heat of vaporization of water 
+    """heat of vaporization of water 
 	
     Heat of vaporization of water from the DIPPR(R) correlation
     (Correlation A: DIPPR Equation 106; valid from 273.16 - 647.096 K;
@@ -278,7 +278,7 @@ def hvp(t):
     y = y / 1000 # convert from J/kmol to J/mol
     return(y)
     
-def lvs(t): # liquid viscosity
+def lvs(t):
     """liquid viscosity of water 
 	
     Liquid viscosity of water from the DIPPR(R) correlation
@@ -357,7 +357,7 @@ def lpr(t):
     return(lcp(t)*lvs(t)/ltc(t)/mw)
 
 def ftsat(t,p):
-    """Function supplied to fsolve in tsat function 
+    """function supplied to fsolve in tsat function 
 	
     Function supplied to fsolve (in the f(x)=0 form) to solve for the 
     temperature at saturation for a given pressure.  This 
