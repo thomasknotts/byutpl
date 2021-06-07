@@ -497,20 +497,202 @@ def vdn(t,p):
     v = v / mw # convert from m**3/mol to m**3/kg
     return(1/v)
     
-def icp(t): # ideal gas heat capacity
-    A = 33257.8886
-    B = 51444.739266
-    C = -761.088083
-    D = 139737.490488
-    E = 1616.907907
-    F = 56829.10351
-    G = 4111.398275
-    y = A + B*(C/t)**2*np.exp(C/t)/(np.exp(C/t)-1)**2 + D*(E/t)**2*np.exp(E/t)/(np.exp(E/t)-1)**2 + F*(G/t)**2*np.exp(G/t)/(np.exp(G/t)-1)**2
-    y = y / 1000 # convert from J/kmol/K to J/mol/K
-    return y # units of J/mol/K
+def icp(t): 
+    """ideal gas heat capacity of benzene
+    
+    The ideal gas heat capacity of benzene at temperature `t` from the 
+    DIPPR(R) correlation.
+    (Correlation A: DIPPR Equation 127; valid from 20 — 1500 K;
+    uncertainty: < 1%)
+    
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the ideal gas heat
+        capacity of benzene.
 
-def vpr(t): # liquid Prandtl number
-    return icp(t)*vvs(t)/vtc(t)/mw # unitless
+    Returns
+    -------
+    float
+        The ideal gas heat capacity of benzene (J/(mol*K)) at `t`.
+    """     
+    c=np.array([33257.8886,51444.739266,761.088083,139737.490488,1616.907907,56829.10351,4111.398275])    
+    y=dippr.eq127(t,c)
+    y = y / 1000 # convert from J/kmol/K to J/mol/K
+    return(y)
+
+def vcp(t,p):
+    """vapor heat capacity benzene
+	
+    Heat capacity of vapor benzene calculated from the DIPPR(R) 
+    correlation for ideal gas heat capacity and the residual property
+    from the Soave-Redlich-Kwong equation of state.
+    (ICP Correlation A: DIPPR Equation 127; valid from 20 — 1500 K;
+    uncertainty: < 1%)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the heat 
+        capacity of vapor benzene.
+
+    p : float
+        The pressure (Pa) at which to evaluate the heat capacity
+        of vapor benzene.
+
+    Returns
+    -------
+    float
+        The heat capacity (J/(mol*K)) of vapor benzene
+        at `t` and `p`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    x = icp(t) + srk.cprv(t,p,tc,pc,acen)
+    return(x)
+
+def vnu(t,p):
+    """vapor kinematic viscosity of benzene
+	
+    Kinematic viscosity of vapor benzene calculated from the vvs and
+    vdn functions in this module. The calculation uses the Soave-Redlich-
+    Kwong equation of state for the vapor density.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the kinematic 
+        viscosity of vapor benzene.
+
+    p : float
+        The pressure (Pa) at which to evaluate the kinematic viscosity
+        of vapor benzene.
+
+    Returns
+    -------
+    float
+        The kinematic viscosity (m**2/s) of vapor benzene
+        at `t` and `p`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(vvs(t)/vdn(t,p))
+
+def vpr(t, p):
+    """Prandtl number of vapor water (steam)
+	
+    Prandtl number of vapor water (steam) calculated from the vcp, vvs, 
+    and vtc functions in this module. The calculation uses the Soave-
+    Redlich-Kwong equation of state to correct the ideal gas heat capacity
+    to the real gas at `t` and `p`. This is not as accurate as the values
+    from the the steam tables.
+    (valid from 273.16 - 647.096 K; uncertainty at saturation:
+    < 0.1% at 300 K, < 1.5% at 400 K, < 3% at 500 K, < 10% at 600 K)
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the Prandtl number of vapor
+        water (steam).
+
+    p : float
+        The pressure (Pa) at which to evaluate the Prandtl number of vapor
+        water (steam).
+
+    Returns
+    -------
+    float
+        The Prandtl number (dimensionless) of vapor water (steam) at `t`
+        and `p`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(vcp(t,p)*vvs(t)/vtc(t)/mw)
+
+
+def unit(key):
+    """Returns the units of `key` 
+	
+    Returns the units of the constant or function in this module identified
+    by 'key'
+	
+    Parameters
+    ----------
+    key : string
+        The name of the constant or function in this module for which the
+        units are needed.
+
+    Returns
+    -------
+    string
+        The units for the constant or function identified by `key`.
+
+    References
+    ----------
+    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    if type(key) !=str:
+        return('The parameter must be a string.')
+    if key == 'tc':
+        return('K')
+    if key == 'pc':
+        return('Pa')
+    if key == 'vc':
+        return('m**3/mol')
+    if key == 'zc':
+        return('unitless')
+    if key == 'acen':
+        return('unitless')
+    if key == 'mw':
+        return('kg/mol')
+    if key == 'ldn':
+        return('kg/m**3')
+    if key == 'lcp':
+        return('J mol**-1 K**-1')
+    if key == 'icp':
+        return('J mol**-1 K**-1')
+    if key == 'vcp':
+        return('J mol**-1 K**-1')
+    if key == 'ltc':
+        return('W m**-1 K**-1')
+    if key == 'vp':
+        return('Pa')
+    if key == 'hvp':
+        return('J/mol')
+    if key == 'lpr':
+        return('unitless')
+    if key == 'lvs':
+        return('Pa*s')
+    if key == 'lnu':
+        return('m**2/s')
+    if key == 'tsat':
+        return('K')
+    if key == 'vvs':
+        return('Pa*s')
+    if key == 'vtc':
+        return('W m**-1 K**-1')
+    if key == 'vnu':
+        return('m**2/s')
+    if key == 'vdn':
+        return('kg/m**3')
+    if key == 'vpr':
+        return('unitless')
+    else:
+        return('"'+key+'" is not a constant or function in this module.')
 
 
 
