@@ -36,7 +36,7 @@
 #               pressure-dependent functions to use Soave-Redlich-Kwong    #
 #               equation of state for real gas vapor heat capacity. Added  #
 #               vapor properties vdn, vcp, vnu, and vpr. Changed the name  #
-#               of pr to lpr and nu to lnu. Removed vdn.                #
+#               of pr to lpr and nu to lnu.                                #
 # ======================================================================== #
 """
 This library contains functions for the properties of benzene.
@@ -587,30 +587,27 @@ def vnu(t,p):
     return(vvs(t)/vdn(t,p))
 
 def vpr(t, p):
-    """Prandtl number of vapor water (steam)
+    """Prandtl number of vapor benzene
 	
-    Prandtl number of vapor water (steam) calculated from the vcp, vvs, 
+    Prandtl number of vapor benzene calculated from the vcp, vvs, 
     and vtc functions in this module. The calculation uses the Soave-
     Redlich-Kwong equation of state to correct the ideal gas heat capacity
-    to the real gas at `t` and `p`. This is not as accurate as the values
-    from the the steam tables.
-    (valid from 273.16 - 647.096 K; uncertainty at saturation:
-    < 0.1% at 300 K, < 1.5% at 400 K, < 3% at 500 K, < 10% at 600 K)
+    to the real gas at `t` and `p`. 
 	
     Parameters
     ----------
     t : float
         The temperature (K) at which to evaluate the Prandtl number of vapor
-        water (steam).
+        benzene.
 
     p : float
         The pressure (Pa) at which to evaluate the Prandtl number of vapor
-        water (steam).
+        benzene.
 
     Returns
     -------
     float
-        The Prandtl number (dimensionless) of vapor water (steam) at `t`
+        The Prandtl number (dimensionless) of vapor benzene at `t`
         and `p`.
 
     References
