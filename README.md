@@ -1,7 +1,7 @@
 # byutpl
 
 byutpl is a suite of tools for chemical and other engineers to
-to 1) perform thermodynamic calculations using cubic equations of
+1) perform thermodynamic calculations using cubic equations of
 state and 2) obtain thermophysical properties for a limited set
 of compunds.
 
@@ -9,12 +9,20 @@ Its target audience is students in chemical and mechanical engineering
 majors. Before using this tool, students should fully understand the 
 principles behind the calculations being performed.
 
+It is most useful for courses in **thermodynamics**, **fluids**, and
+**heat and mass transfer**.
+
 # Usage
 ## Available Packages
+### Import the module for the Soave, Redlich, Kwong equation of state
 import byutpl.eos.srk as srk
+### Import the module for the Peng-Robinson equation of state
 import byutpl.eos.pr as pr
+### Import the modules for the properties of water
 import byutpl.properties.water as wtr
+### Import the package for the properties of air
 import byutpl.properties.air as air
+### Import the package for the properties of benzene
 import byutpl.properties.benzene as bzn
 
 ## Example Commands
