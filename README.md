@@ -1,8 +1,10 @@
 # byutpl
 
-byutpl is a suite of tools for chemical and other engineers to
-1) perform thermodynamic calculations using cubic equations of
-state and 2) obtain thermophysical properties for a limited set
+byutpl (Brigham Young University Thermophysical Properties Laboratory)
+is a suite of tools for chemical and other engineers to
+1. perform thermodynamic calculations using cubic equations of
+state and
+2. obtain thermophysical properties for a limited set
 of compunds.
 
 Its target audience is students in chemical and mechanical engineering
