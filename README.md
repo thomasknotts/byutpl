@@ -17,13 +17,13 @@ It is most useful for courses in **thermodynamics**, **fluids**, and
 ### Import the module for the Soave, Redlich, Kwong equation of state
 ```import byutpl.eos.srk as srk```
 ### Import the module for the Peng-Robinson equation of state
-import byutpl.eos.pr as pr
+```import byutpl.eos.pr as pr```
 ### Import the modules for the properties of water
-import byutpl.properties.water as wtr
+```import byutpl.properties.water as wtr```
 ### Import the package for the properties of air
-import byutpl.properties.air as air
+```import byutpl.properties.air as air```
 ### Import the package for the properties of benzene
-import byutpl.properties.benzene as bzn
+```import byutpl.properties.benzene as bzn```
 
 ## Example Commands
 The following command returns the residual heat capacity calculated by 
@@ -33,19 +33,20 @@ critical temperature = 369 K
 critical pressure = 480000 Pa
 acentric factor = 0.81
 
-srk.hrl(300,5E5,369,48E5,0.81)
+```srk.hrl(300,5E5,369,48E5,0.81)```
 
 The following command returns the liquid viscosity of water at 400 K.
 
-wtr.lvs(400)
+```wtr.lvs(400)```
 
 ## Complete Documentation
-For complete lists of functions, properties, and units see
-help(srk)
-help(pr)
-help(wtr)
-help(air)
-help(bzn)
+For complete lists of functions, properties, and units see the following
+after importing the respective module.
+```help(srk)```
+```help(pr)```
+```help(wtr)```
+```help(air)```
+```help(bzn)```
 
 # Developer
 Thomas A. Knotts
