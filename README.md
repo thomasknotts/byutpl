@@ -15,7 +15,7 @@ It is most useful for courses in **thermodynamics**, **fluids**, and
 # Usage
 ## Available Packages
 ### Import the module for the Soave, Redlich, Kwong equation of state
-import byutpl.eos.srk as srk
+```import byutpl.eos.srk as srk```
 ### Import the module for the Peng-Robinson equation of state
 import byutpl.eos.pr as pr
 ### Import the modules for the properties of water
