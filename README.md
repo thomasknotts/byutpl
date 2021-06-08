@@ -28,10 +28,10 @@ It is most useful for courses in **thermodynamics**, **fluids**, and
 ## Example Commands
 The following command returns the residual heat capacity calculated by 
 the Soave, Redlich, Kwong equation of state at 300 K
-and 5E5 Pa for the liquid phase of the compound described by 
-critical temperature = 369 K
-critical pressure = 480000 Pa
-acentric factor = 0.81
+and 500000 Pa for the liquid phase of the compound described by 
+- critical temperature = 369 K 
+- critical pressure = 4800000 Pa 
+- acentric factor = 0.81
 
 ```srk.hrl(300,5E5,369,48E5,0.81)```
 
@@ -40,8 +40,8 @@ The following command returns the liquid viscosity of water at 400 K.
 ```wtr.lvs(400)```
 
 ## Complete Documentation
-For complete lists of functions, properties, and units see the following
-after importing the respective module.
+For complete lists of functions, properties, and units use the 
+```help()``` function after importing the respective module.
 ```help(srk)```
 ```help(pr)```
 ```help(wtr)```
