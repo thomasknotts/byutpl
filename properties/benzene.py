@@ -47,22 +47,22 @@ of state.
 
 This module is part of the byutpl package. Import the module using
 
-  import byutpl.properties.benzene as benzene
+  import byutpl.properties.benzene as bnz
 
 When imported in this way, constant properties can be called as   
 
-  benzene.acen
+  bnz.acen
   
 which returns the acentric factor. Temperature dependent properties
 can be called as
   
-  benzene.vtc(t)
+  bnz.vtc(t)
 
 which returns the vapor thermal conductivity at `t` where `t` is 
 temperature in units of K. Temperature and pressure dependent properties
 can be called as
   
-  benzene.vcp(t,p)
+  bnz.vcp(t,p)
 
 which returns the vapor heat capacity at `t` and `p` where 
 `t` is temperature in units of K and `p` is pressure in units of Pa.
