@@ -92,9 +92,9 @@ import numpy as np
 import byutpl.eos.srk as srk
 import byutpl.equations.dippreqns as dippr          
 
-def ICP(t,cicp,eqnicp): 
-     """ideal gas heat capacity
-	
+def ICP(t,cicp,eqnicp):
+    """ideal gas heat capacity
+
     Returns the ideal gas isobaric heat capacity from the 
     DIPPR(R) [1] correlation
 	
@@ -126,7 +126,7 @@ def ICP(t,cicp,eqnicp):
     else:
         x = dippr.eq107(t,cicp)
     return(x)
-
+    
 def IdealToRealGasCpCorrection(t,p,tc,pc,w):
     """correction from ideal to real gas vapor heat capacity
 	
@@ -267,7 +267,7 @@ def dHVPdT(tr,tc,chvp):
        DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
        for Physical Properties, AIChE, New York, NY (2017).
 	"""
-	return(dippr.eq106a(tr,tc,chvp))
+    return(dippr.eq106a(tr,tc,chvp))
 	
 def drLDNdT(t,cldn): # temperature derivative of the reciprocal of liquid density
     """temperature derivative of the reciprocal of liquid density
