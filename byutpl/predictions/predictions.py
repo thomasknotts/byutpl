@@ -89,120 +89,264 @@
 # ================================================================================================== #
 
 import numpy as np
-import dippr.equations as dippr # DIPPR equations by number            
-import dippr.srkprops as srk # PVT properties from SRK EOS  
+import byutpl.eos.srk as srk
+import byutpl.equations.dippreqns as dippr          
 
-# ------------------------------------------------------------------------ #
-# Functions                                                                #
-# ------------------------------------------------------------------------ #
+def ICP(t,cicp,eqnicp):
+    """ideal gas heat capacity
 
-# ICP: Ideal Gas Heat Capacity
-
-# Function Input Parameters
-# * t: temperature in K
-# * c: coefficient matrix for the ICP correlation
-# * eqnicp: the equation number for the correlation
-
-# Function Return Value
-# the ideal gas heat capacity at t in J kmol**-1 K**-1
-def ICP(t,cicp,eqnicp): 
+    Returns the ideal gas isobaric heat capacity from the 
+    DIPPR(R) [1] correlation
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    cicp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the ideal gas isobaric heat capacity correlation of the compound
+    
+    eqnicp : integer
+        the DIPPR(R) equation number corresponding to the `cicp`
+        
+    Returns
+    -------
+    float
+        the value of the ideal gas isobaric heat capacity at `t` in J kmol**-1 K**-1
+        
+    References
+    ----------    
+    .. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
     if (eqnicp == "127" or eqnicp == 127):
         x = dippr.eq127(t,cicp)
     else:
         x = dippr.eq107(t,cicp)
-    return(x) # J/kmol/K
+    return(x)
+    
+def IdealToRealGasCpCorrection(t,p,tc,pc,w):
+    """correction from ideal to real gas vapor heat capacity
+	
+    Returns the change in vapor heat capacity when moving from ideal to real
+    constant pressure heat capacity of the vapor. The correction is calculated
+    using the SRK Equation of state.
+    
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    p : float
+        The pressure (Pa) of the system
+    
+    tc : float
+        The critical temperature (K) of the compound
+    
+    pc : float
+        The critical pressure (Pa) of the compound
+        
+    w : float
+        The acentric factor (unitless) of the compound
+           
+    Returns
+    -------
+    float
+        The change in vapor isobaric heat capacity when moving from the ideal to 
+        the real state in J kmol**-1 K**-1
 
-
-# IdealToRealGasCorrection
-
-# Function Input Parameters
-# * t: temperature in K
-# * psat: vapor pressure in Pa at temperature t
-# * tc: critical temperature in K
-# * pc: critical pressure in K
-# * w: acentric factor
-
-# Function Return Value
-# the correction from ideal to real gas heat capacity at t in units of J/kmol/K
-def IdealToRealGasCorrection(t,psat,tc,pc,w):
-    v = srk.vv(t,psat,tc,pc,w)
+	"""
+    v = srk.vv(t,p,tc,pc,w)
     b = srk.b(tc,pc)
     x = t*srk.d2ThetadT2(t,tc,pc,w)*np.log(v/(v+b))/b + t*srk.dVdT(t,v,tc,pc,w)**2*srk.dPdV(t,v,tc,pc,w)+srk.rg
     x = x*1000 # convert from J/mol/K to J/kmol/K
-    return(x) # J/kmol/K
+    return(x)
 
-
-# dVPdT
-
-# Function Input Parameters
-# * t: temperature in K
-# * cvp: matrix with coefficients for VP correlation
-
-# Function Return Value
-# the temperature derivative of the vapor pressure correlation with respect to temperature in units of Pa/K
 def dVPdT(t,cvp):
-    return(dippr.eq101(t,cvp)*dippr.eq101a(t,cvp)) # Pa/K
+    """temperature derivative of vapor pressure
+	
+    Returns the temperature derivative of the vapor pressure
+    evaluated at `t`. Uses the DIPPR(R) [1] vapor pressure correlation.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    cvp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the vapor pressure correlation of the compound
+        
+    Returns
+    -------
+    float
+        the temperature derivative of the vapor pressure
+        evaluated at `t` in units of Pa/K
+        
+    References
+    ----------    
+    .. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(dippr.eq101(t,cvp)*dippr.eq101a(t,cvp))
 
 
-# sigmaToPCorrectionV
 
-# Function Input Parameters
-# * t: temperature in K
-# * psat: vapor pressure in Pa at temperature t
-# * tc: critical temperature in K
-# * pc: critical pressure in K
-# * w: acentric factor
-# * cvp: matrix with coefficients for VP correlation
+def sigmaToPCorrectionV(t,tc,pc,w,cvp):
+    """correction from saturation to contant P vapor heat capacity
+	
+    Returns the change in vapor heat capacity when moving from saturation
+    (C_sigma_V) to constant pressure (C_p_V). This value is added
+    to C_sigma_V to obtain  C_p_V. The correction is calculated using the 
+    SRK Equation of state with DIPPR (R) [1] correlations for properties
+    as explained below.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    tc : float
+        The critical temperature (K) of the compound
+    
+    pc : float
+        The critical pressure (Pa) of the compound
+        
+    w : float
+        The acentric factor (unitless) of the compound
+    
+    cvp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the vapor pressure correlation of the compound
+        
+    Returns
+    -------
+    float
+        The change in vapor heat capacity when moving from saturation
+        (C_sigma_V) to constant pressure (C_p_V) in J kmol**-1 K**-1
 
-# Function Return Value
-# the correction from saturation to constant P heat capacity of the vapor at t in units of J/kmol/K
-def sigmaToPCorrectionV(t,psat,tc,pc,w,cvp):
+    References
+    ----------      
+    .. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    psat = dippr.eq101(t,cvp)
     v = srk.vv(t,psat,tc,pc,w)
     x = (v - t*srk.dVdT(t,v,tc,pc,w))*dVPdT(t,cvp)
     x = x*1000 # convert from J/mol/K to J/kmol/K
-    return(x) # J/kmol/K
+    return(x)
 	
-
-#dHVPdT
-
-# Function Input Parameters
-# * tr: reduced temperature
-# * tc: critical temperature in K
-# * chvp: matrix with coeffcients for HVP correlation
-
-# Function Return Value
-# the derivative of HVP with respect to temperature t at tr in units of J/kmol/K
 def dHVPdT(tr,tc,chvp):
-	return(dippr.eq106a(tr,tc,chvp)) # J/kmol/K
+    """temperature derivative of heat of vaporization
 	
+    Returns the temperature derivative of the heat of vaporization
+    evaluated at `tr`. Uses the DIPPR(R) [1] heat of vaporization correlation.
 	
-#drLDNdT
+    Parameters
+    ----------
+    tr : float
+        The temperature (K) of the system
+        
+    chvp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the heat of vaporization correlation of the compound
+        
+    Returns
+    -------
+    float
+        the temperature derivative of the reciprocal of the heat of vaporization
+        evaluated at `tr` in units of J kmol**-1 K**-1
 
-# Function Input Parameters
-# * t: temperature in K
-# * cldn: matrix with coefficients for LDN correlation
-
-# Function Return Value
-# temperature derivative of the reciprocal of liquid density, evaluated at temperature t, returned in units of m**3/kmol/K
+    References
+    ----------    
+    .. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(dippr.eq106a(tr,tc,chvp))
+	
 def drLDNdT(t,cldn): # temperature derivative of the reciprocal of liquid density
-    return(-1.0/dippr.eq105(t,cldn)*cldn[3]/cldn[2]*np.log(cldn[1])*(1-t/cldn[2])**(cldn[3]-1)) # m**3/kmol/K
+    """temperature derivative of the reciprocal of liquid density
+	
+    Returns the temperature derivative of the reciprocal of liquid density
+    evaluated at `t`. Uses the DIPPR(R) [1] liquid density correlation.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    cldn : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the liquid density correlation of the compound
+        
+    Returns
+    -------
+    float
+        the temperature derivative of the reciprocal of liquid density
+        evaluated at `t` in units of m**3 kmol**-1 K**-1
+
+    References
+    ----------    
+    .. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    return(-1.0/dippr.eq105(t,cldn)*cldn[3]/cldn[2]*np.log(cldn[1])* \
+           (1-t/cldn[2])**(cldn[3]-1))
 
 
-# sigmaToPCorrectionL
-
-# Function Input Parameters
-# * t: temperature in K
-# * tc: critical temperature in K
-# * pc: critical pressure in K
-# * w: acentric factor
-# * cvp: matrix with coefficients for VP correlation
-# * cldn: matrix with coefficients for LDN correlation
-
-# Function Return Value
-# the correction from saturation to constant P heat capacity of the liquid at t in units of J/kmol/K
-# calculated using the BHT correlation (G. H. Thomson and K. R. Brobst and R. W. Hankinson, An 
-# improved correlation for densities of compressed liquids and liquid mixtures, AIChE Journal, 28:4, 671-676 (1982).)
 def sigmaToPCorrectionL(t,tc,pc,w,cvp,cldn):
+    """correction from saturation to contant P liquid heat capacity
+	
+    Returns the change in liquid heat capacity when moving from 
+    saturation (C_sat_L) to constant pressure (C_p_L). This value is added
+    to C_sat_L to obtain  C_p_L. The correction is calculated using the 
+    BHT correlation [1] with DIPPR (R) [2] correlations for properties
+    as explained below.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    tc : float
+        The critical temperature (K) of the compound
+    
+    pc : float
+        The critical pressure (Pa) of the compound
+        
+    w : float
+        The acentric factor (unitless) of the compound
+    
+    cvp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the vapor pressure correlation of the compound
+        
+    cldn : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the liquid density correlation of the compound
+        
+    Returns
+    -------
+    float
+        The value of the change in liquid heat capacity when moving from 
+        saturation (C_sat_L) to constant pressure (C_p_L) in J kmol**-1 K**-1
+
+    References
+    ----------
+    .. [1] G. H. Thomson and K. R. Brobst and R. W. Hankinson, An improved 
+       correlation for densities of compressed liquids and liquid mixtures,
+       AIChE Journal, 28:4, 671-676 (1982).
+       
+    .. [2] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
     # Coefficients for BHT method
     a=-9.070217
     b=62.45326
@@ -226,25 +370,66 @@ def sigmaToPCorrectionL(t,tc,pc,w,cvp,cldn):
     
     # the value of the function in J/kmol/K 
     x = dvpdt*(1/ldn - t*(drldndt+c/ldn/(beta+vp)*dvpdt))
-    return(x) # J/kmol/K
-
-
-# LCPder
-
-# Function Input Parameters
-# * t: temperature in K
-# * tc: critical temperature in K
-# * pc: critical pressure in K
-# * w: acentric factor
-# * cicp: matrix with coefficients for ICP correlation
-# * eqnicp: dippr equation number for ICP correlation
-# * cvp: matrix with coefficients for VP correlation
-# * cldn: matrix with coefficients for LDN correlation
-
-# Function Return Value
-# The liquid heat capacity at temperature t predicted using the derivative method; given in units of J/kmol/K
+    return(x)
 
 def LCPder(t,tc,pc,w,cicp,eqnicp,cvp,chvp,cldn):
+    """liquid heat capacity prediction from DIPPR(R) derivative method
+	
+    Liquid heat capacity predicted from the DIPPR(R) [1] derivative method.
+    This technique is a thermodynamically rigorous method to use  
+    correlations for the ideal gas heat capacity, the vapor pressure,
+    the heat of vaporization, and the liquid density of a compound
+    to predict the liquid heat capacity.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    tc : float
+        The critical temperature (K) of the compound
+    
+    pc : float
+        The critical pressure (Pa) of the compound
+        
+    w : float
+        The acentric factor (unitless) of the compound
+    
+    cicp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the ideal gas heat capacity correlation of the compound
+    
+    eqnicp : integer
+        DIPPR(R) equation number for the ideal gas heat capacity 
+        correlation of the compound
+    
+    cvp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the vapor pressure correlation of the compound
+
+    chvp : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the heat of vaporization correlation of the compound
+        
+    cldn : ndarray
+        1D numpy array containing the DIPPR(R) coefficients (A, B, C, ...)
+        for the liquid density correlation of the compound
+        
+    Returns
+    -------
+    float
+        The value of the liquid heat capcity (J kmol**-1 K**-1) predicted
+        using the DIPPR(R) derivative method
+
+    References
+    ----------
+    .. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
     psat = dippr.eq101(t,cvp)
-    return(ICP(t,cicp,eqnicp)-dHVPdT(t/tc,tc,chvp)-IdealToRealGasCorrection(t,psat,tc,pc,w)+sigmaToPCorrectionV(t,psat,tc,pc,w,cvp)-sigmaToPCorrectionL(t,tc,pc,w,cvp,cldn)) # J/kmol/K
+    return(ICP(t,cicp,eqnicp) - dHVPdT(t/tc,tc,chvp) - \
+           IdealToRealGasCpCorrection(t,psat,tc,pc,w) + \
+           sigmaToPCorrectionV(t,tc,pc,w,cvp) - \
+           sigmaToPCorrectionL(t,tc,pc,w,cvp,cldn))
 

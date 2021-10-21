@@ -47,7 +47,7 @@ The following command returns the liquid viscosity of water at 400 K in units of
 
 ## Complete Documentation
 For complete lists of functions, properties, and units use the 
-```help()``` function after importing the respective module.
+```help()``` function after importing the respective module. e.g.
 ```help(srk)```
 ```help(pr)```
 ```help(wtr)```
