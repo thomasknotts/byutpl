@@ -30,16 +30,19 @@
 # Version 1.0 - October 2019                                               #
 # Version 2.0 - May 2021 Changed name form srkprops to srk;                #
 #               Added docstring; added residual heat capacities            #
+# Version 3.0 - October 2021 changed the kappa to the Graboski & Daubert   #
+#               (1978) coefficients. 
 # ======================================================================== #
 """
 This module contains functions that calculate thermodynamic properties  
-at a given T and P using the Soave-Redlich-Kwong equation of state.     
+at a given T and P using the Soave-Redlich-Kwong [1] equation of state with 
+the modified kappa coefficients from Graboski and Daubert [2].
 Functions are also available that calculate various partial derivatives of  
 P as a function of T and V. The functions require the critical             
 temperature, pressure, and acentric factor of the compound of interest.  
 
 The equations follow that presented in Chapter 4 of The Properties of    
-Gases and Liquids, 5th ed. by Poling, Prausnitz, and O'Connell.  The      
+Gases and Liquids, 5th ed. by Poling, Prausnitz, and O'Connell. [3]  The      
 volume (compressibility) is solved by placing the equations on state in the
 dimensionless cubic z form.
 
@@ -114,15 +117,21 @@ ideal gas.
 
 References
 ----------
-.. [1] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
+.. [1] G. Soave, Equilibrium Constants from a Modified Redlich-Kwong
+   Equation of State, Chem. Eng. Sci., 27 1197-1203 (1972).      
+
+.. [2] M. S. Graboski and T. E. Daubert, A Modified Soave Equation
+   of State for Phase Equilibrium Calculations. 2. Systems 
+   Containing CO2, H2S, N2, and CO, Ind. Eng. Chem. Process Des.
+   Dev., 17(4) 448-454 (1978).
+.. [3] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
    of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).
+
 
 """
 import numpy as np
 
-# gas constant in J/(mol*K)
-
-rg = 8.31447215 
+rg = 8.31447215 # gas constant in J mol**-1 K**-1
 
 # ------------------------------------------------------------------------ #
 # Parameters for the equation of state.                                    #
@@ -130,6 +139,15 @@ rg = 8.31447215
 
 def kappa(w):
     """ kappa parameter for the SRK EOS (unitless)
+
+    Graboski & Daubert [1] modified the original SRK
+    coefficients in kappa. The original expression [2] was
+    
+    kappa = 0.480 + 1.574*w - 0.176*w**2
+    
+    This function uses the later coefficients
+    
+    kappa = 0.48508 + 1.55171*w - 0.15613*w**2
 
     Parameters
     ----------
@@ -139,9 +157,19 @@ def kappa(w):
     Returns
     -------
     float
-        kappa = 0.480 + 1.574*w - 0.176*w**2    (unitless)     
+        kappa = 0.48508 + 1.55171*w - 0.15613*w**2  (unitless)     
+
+    References
+    ----------
+    .. [1] M. S. Graboski and T. E. Daubert, A Modified Soave Equation
+       of State for Phase Equilibrium Calculations. 2. Systems 
+       Containing CO2, H2S, N2, and CO, Ind. Eng. Chem. Process Des.
+       Dev., 17(4) 448-454 (1978).
+       
+    .. [2] G. Soave, Equilibrium Constants from a Modified Redlich-Kwong
+       Equation of State, Chem. Eng. Sci., 27 1197-1203 (1972).
     """ 
-    x = 0.480 + 1.574*w - 0.176*w**2
+    x = 0.48508 + 1.55171*w - 0.15613*w**2
     return(x)
 
 def alpha(t,tc,w):
@@ -161,7 +189,12 @@ def alpha(t,tc,w):
     Returns
     -------
     float
-        alpha = (1.0+kappa(w)*(1.0-(t/tc)**0.5))**2    (unitless)    
+        alpha = (1.0+kappa(w)*(1.0-(t/tc)**0.5))**2    (unitless)  
+    
+    References
+    ----------
+    .. [1] G. Soave, Equilibrium Constants from a Modified Redlich-Kwong
+       Equation of State, Chem. Eng. Sci., 27 1197-1203 (1972).        
     
     """ 
     x = (1.0+kappa(w)*(1.0-(t/tc)**0.5))**2
@@ -181,9 +214,14 @@ def a(tc,pc):
     Returns
     -------
     float
-        a = 0.42748*rg**2*tc**2/pc    (Pa*m**6/mol**2)    
+        a = 0.42747*rg**2*tc**2/pc    (Pa*m**6/mol**2)    
+
+    References
+    ----------
+    .. [1] G. Soave, Equilibrium Constants from a Modified Redlich-Kwong
+       Equation of State, Chem. Eng. Sci., 27 1197-1203 (1972).      
     """ 
-    x = 0.42748*rg**2*tc**2/pc
+    x = 0.42747*rg**2*tc**2/pc
     return(x)
 
 def b(tc,pc):
@@ -201,6 +239,11 @@ def b(tc,pc):
     -------
     float
         b = 0.08664*rg*tc/pc    (m**3/mol)        
+
+    References
+    ----------
+    .. [1] G. Soave, Equilibrium Constants from a Modified Redlich-Kwong
+       Equation of State, Chem. Eng. Sci., 27 1197-1203 (1972).      
     """ 
     x = 0.08664*rg*tc/pc
     return(x)
@@ -524,11 +567,10 @@ def etaPrime(t,p,tc,pc):
     """ 
     x = b(tc,pc)*p/rg/t
     return(x)
-
+    
 # ------------------------------------------------------------------------ #
 # Compressibility Functions                                                #
 # ------------------------------------------------------------------------ # 
-    
 def zl(t,p,tc,pc,w):
     """liquid compressibility from the SRK EOS (unitless)
 
@@ -618,7 +660,7 @@ def zv(t,p,tc,pc,w):
 # ------------------------------------------------------------------------ #
 # The Pressure Function                                                    #
 # ------------------------------------------------------------------------ #
-    
+   
 def P(t,v,tc,pc,w):
     """pressure from the SRK EOS in units of Pa
 
@@ -652,7 +694,7 @@ def P(t,v,tc,pc,w):
 # ------------------------------------------------------------------------ #
 # Molar Volume Functions                                                   #
 # ------------------------------------------------------------------------ #
-    
+   
 def vl(t,p,tc,pc,w):
     """liquid molar volume from the SRK EOS in units of m**3/mol
 
@@ -825,7 +867,7 @@ def dVdT(t,v,tc,pc,w):
 # Residual Property Functions                                              #
 # ------------------------------------------------------------------------ #
     
-def hrl(t,p,tc,pc,w): # liquid residual enthalpy at t and p from SRK EOS
+def hrl(t,p,tc,pc,w):
     """liquid residual enthalpy from the SRK EOS in units of J/mol
 
     Parameters

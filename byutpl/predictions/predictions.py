@@ -158,10 +158,8 @@ def IdealToRealGasCpCorrection(t,p,tc,pc,w):
         the real state in J kmol**-1 K**-1
 
 	"""
-    v = srk.vv(t,p,tc,pc,w)
-    b = srk.b(tc,pc)
-    x = t*srk.d2ThetadT2(t,tc,pc,w)*np.log(v/(v+b))/b + t*srk.dVdT(t,v,tc,pc,w)**2*srk.dPdV(t,v,tc,pc,w)+srk.rg
-    x = x*1000 # convert from J/mol/K to J/kmol/K
+    x = -srk.cprv(t,p,tc,pc,w)
+    x = x*1000 # convert from J mol**-1 K**-1 to J kmol**-1 K**-1
     return(x)
 
 def dVPdT(t,cvp):
@@ -237,7 +235,7 @@ def sigmaToPCorrectionV(t,tc,pc,w,cvp):
     psat = dippr.eq101(t,cvp)
     v = srk.vv(t,psat,tc,pc,w)
     x = (v - t*srk.dVdT(t,v,tc,pc,w))*dVPdT(t,cvp)
-    x = x*1000 # convert from J/mol/K to J/kmol/K
+    x = x*1000 # convert from J mol**-1 K**-1 to J kmol**-1 K**-1
     return(x)
 	
 def dHVPdT(tr,tc,chvp):
@@ -269,7 +267,7 @@ def dHVPdT(tr,tc,chvp):
 	"""
     return(dippr.eq106a(tr,tc,chvp))
 	
-def drLDNdT(t,cldn): # temperature derivative of the reciprocal of liquid density
+def drLDNdT(t,cldn): 
     """temperature derivative of the reciprocal of liquid density
 	
     Returns the temperature derivative of the reciprocal of liquid density
@@ -368,7 +366,7 @@ def sigmaToPCorrectionL(t,tc,pc,w,cvp,cldn):
     dvpdt = dVPdT(t,cvp) # temperature derivative of vapor pressure in Pa/K
     beta = pc*(-1.0 + a*tau**(1/3) + b*tau**(2/3) + d*tau + e*tau**(4/3)) # Pa
     
-    # the value of the function in J/kmol/K 
+    # the value of the function in J kmol**-1 K**-1
     x = dvpdt*(1/ldn - t*(drldndt+c/ldn/(beta+vp)*dvpdt))
     return(x)
 
