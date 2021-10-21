@@ -14,6 +14,10 @@ principles behind the calculations being performed.
 It is most useful for courses in **thermodynamics**, **fluids**, and
 **heat and mass transfer**.
 
+# Dependencies
+- numpy
+- scipy
+
 # Usage
 ## Available Packages
 ### Import the module for the Soave, Redlich, Kwong equation of state
@@ -28,8 +32,8 @@ It is most useful for courses in **thermodynamics**, **fluids**, and
 ```import byutpl.properties.benzene as bzn```
 
 ## Example Commands
-The following command returns the residual heat capacity calculated from 
-the Soave, Redlich, Kwong equation of state at 300 K
+The following command returns the residual heat capacity in units of J/mol,
+calculated using the Soave, Redlich, Kwong equation of state, at 300 K
 and 500000 Pa for the liquid phase of the compound described by 
 - critical temperature = 369 K 
 - critical pressure = 4800000 Pa 
@@ -37,7 +41,7 @@ and 500000 Pa for the liquid phase of the compound described by
 
 ```srk.hrl(300,5E5,369,48E5,0.81)```
 
-The following command returns the liquid viscosity of water at 400 K.
+The following command returns the liquid viscosity of water at 400 K in units of Pa*s
 
 ```wtr.lvs(400)```
 
@@ -52,7 +56,10 @@ For complete lists of functions, properties, and units use the
 
 # Developer
 Thomas A. Knotts
+
 Brigham Young University Thermophysical Properties Laboratory
+
+knotts.byu.edu(http://knotts.byu.edu/)
 
 # License
 GPL(https://www.gnu.org/licenses/gpl-3.0.txt)
