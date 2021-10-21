@@ -15,7 +15,7 @@ def readme():
         return f.read()
 
 config = {
-    'name'                 : 'byutpl',
+    'name'                 : 'byu_tpl',
     'description'          : 'Brigham Young University Thermophysical Properties Laboratory',
     'version'              : VERSION,
     'author'               : 'Thomas Allen Knotts IV',

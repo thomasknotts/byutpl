@@ -13,10 +13,10 @@ endif
 all: build
 
 build:
-	python setup.py sdist bdist_wheel
+	python3 setup.py sdist bdist_wheel
 
 upload: pybuild
-	python -m twine upload dist/*
+	python3 -m twine upload dist/*
 
 clean-linux: execlean-linux
 	rm -f ./lpfgopt/*.so ./lpfgopt/*.dll
