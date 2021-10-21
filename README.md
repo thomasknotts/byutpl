@@ -28,7 +28,7 @@ It is most useful for courses in **thermodynamics**, **fluids**, and
 ```import byutpl.properties.benzene as bzn```
 
 ## Example Commands
-The following command returns the residual heat capacity calculated by 
+The following command returns the residual heat capacity calculated from 
 the Soave, Redlich, Kwong equation of state at 300 K
 and 500000 Pa for the liquid phase of the compound described by 
 - critical temperature = 369 K 
@@ -43,7 +43,7 @@ The following command returns the liquid viscosity of water at 400 K.
 
 ## Complete Documentation
 For complete lists of functions, properties, and units use the 
-```help()``` function after importing the respective module.
+```help()``` function after importing the respective module. e.g.
 ```help(srk)```
 ```help(pr)```
 ```help(wtr)```
