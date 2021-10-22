@@ -1,14 +1,14 @@
 # Copyright (C) 2021 Thomas Allen Knotts IV - All Rights Reserved          #
-# This file, pr.py, is a python library that calculates                    #
-# thermodynamic properties such as V, P, H, S, U, and G from the Peng      #
-# Robinson equation of state.                                              #
+# This file, prsv.py, is a python library that calculates                  #
+# thermodynamic properties such as V, P, H, S, U, and G from the Stryjek   #
+# and Vera version of the Peng-Robinson equation of state. (The PRSV EOS.) #
 #                                                                          #
-# pr.py is free software: you can redistribute it and/or                   #
+# prsv.py is free software: you can redistribute it and/or                 #
 # modify it under the terms of the GNU General Public License as           #
 # published by the Free Software Foundation, either version 3 of the       #
 # License, or (at your option) any later version.                          #
 #                                                                          #
-# pr.py is distributed in the hope that it will be useful,                 #
+# prsv.py is distributed in the hope that it will be useful,               #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of           #
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
 # GNU General Public License for more details.                             #
@@ -19,7 +19,7 @@
 #                                                                          #
 
 # ======================================================================== #
-# pr.py                                                                    #
+# prsv.py                                                                  #
 #                                                                          #
 # Thomas A. Knotts IV                                                      #
 # Brigham Young University                                                 #
@@ -27,14 +27,15 @@
 # Provo, UT  84606                                                         #
 # Email: thomas.knotts@byu.edu                                             #
 # ======================================================================== #
-# Version 1.0 - June 2021                                                  #
+# Version 1.0 - October 2021                                               #
 # ======================================================================== #
 """
 This module contains functions that calculate thermodynamic properties  
-at a given T and P using the Peng-Robinson equation of state.     
-Functions are also available that calculate various partial derivatives of  
-P as a function of T and V. The functions require the critical             
-temperature, pressure, and acentric factor of the compound of interest.  
+at a given T and P using the Peng-Robinson-Stryjek-Vera (PRSV) equation of
+state. [1] Functions are also available that calculate various partial 
+derivatives of P as a function of T and V. The functions require the 
+critical temperature, pressure, acentric factor, and kappa_1 of the 
+compound of interest.  
 
 The equations follow that presented in Chapter 4 of The Properties of    
 Gases and Liquids, 5th ed. by Poling, Prausnitz, and O'Connell.  The      
@@ -46,7 +47,7 @@ dimensionless cubic z form.
     [ThetaPrime + epsilonPrime - deltaPrime*(BPrime + 1)]*z -
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
 
-For more information, see [1].
+For more information, see [2].
 
 This module is part of the byutpl package.              
 
@@ -59,8 +60,8 @@ following.
   
   pr.vl(t,p,tc,pc,w)
 
-This would return the liquid molar volume from the PR EOS at `t` and `p`
-for the compound described by `tc`, `pc`, and `w`.
+This would return the liquid molar volume from the PRSV EOS at `t` and `p`
+for the compound described by `tc`, `pc`, `w`, and `k1`.
 
 Many functions are available, but several are support functions that 
 are used by the main functions and are rarely called by the user.
@@ -78,7 +79,8 @@ p                   system pressure                         Pa
 v                   system molar volume                     m**3/mol    
 tc                  critical temperature of compound        K           
 pc                  critical pressure of compound           Pa          
-w                   acentric factor of compound             unitless    
+w                   acentric factor of compound             unitless
+k1                  kappa_1 parameter for compound          unitless    
 ======================================================================
 
 
@@ -112,7 +114,11 @@ ideal gas.
 
 References
 ----------
-.. [1] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
+.. [1] R. Stryjek and J. H. Vera, An Improved Peng-Robinson Equation 
+   of State for Pure Compounds and Mixtures, Can. J. Chem. Eng.,
+   64(2) 323-333 (1986).
+
+.. [2] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
    of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).
 
 """
@@ -126,8 +132,8 @@ rg = 8.31447215
 # Parameters for the equation of state.                                    #
 # ------------------------------------------------------------------------ #
 
-def kappa(w):
-    """ kappa parameter for the PR EOS (unitless)
+def kappa0(w):
+    """ kappa_0 parameter for the PRSV EOS (unitless)
 
     Parameters
     ----------
@@ -137,13 +143,40 @@ def kappa(w):
     Returns
     -------
     float
-        kappa = 0.37464 + 1.54226*w - 0.26992*w**2    (unitless)     
+        kappa0 = 0.378893 + 1.4897153*w - 0.17131848*w**2 + 0.0196554*w**3
+        (unitless)     
     """ 
-    x = 0.37464 + 1.54226*w - 0.26992*w**2
+    x = 0.378893 + 1.4897153*w - 0.17131848*w**2 + 0.0196554*w**3
     return(x)
 
-def alpha(t,tc,w):
-    """ alpha function for the PR EOS (unitless)
+def kappa(t,tc,w,k1):
+    """ kappa parameter for the PRSV EOS (unitless)
+
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+    
+    tc : float
+        critical temperature of the compound (K)
+
+    w : float
+        acentric factor of the compound (unitless)
+    
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+
+    Returns
+    -------
+    float
+        kappa = kappa0+kappa1(1+Tr**0.5)(0.7-Tr)    (unitless)     
+    """
+    tr=t/tc    
+    x = kappa0(w) + k1*(1+tr**0.5)*(0.7-tr)
+    return(x)
+
+def alpha(t,tc,w,k1):
+    """ alpha function for the PRSV EOS (unitless)
     
     Parameters
     ----------
@@ -152,9 +185,12 @@ def alpha(t,tc,w):
     
     tc : float
         critical temperature of the compound (K)
-    
+
     w : float
         acentric factor of the compound (unitless)
+    
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
 
     Returns
     -------
@@ -162,11 +198,11 @@ def alpha(t,tc,w):
         alpha = (1.0+kappa*(1.0-Tr**0.5))**2    (unitless)    
     
     """ 
-    x = (1.0+kappa(w)*(1.0-(t/tc)**0.5))**2
+    x = (1.0+kappa(t,tc,w,k1)*(1.0-(t/tc)**0.5))**2
     return(x)
 
 def a(tc,pc):
-    """ a parameter for the PR EOS in units of Pa*m**6/mol**2
+    """ a parameter for the PRSV EOS in units of Pa*m**6/mol**2
     
     Parameters
     ----------
@@ -179,13 +215,13 @@ def a(tc,pc):
     Returns
     -------
     float
-        a = 0.45724*rg**2*tc**2/pc    (Pa*m**6/mol**2)    
+        a = 0.457235*rg**2*tc**2/pc    (Pa*m**6/mol**2)    
     """ 
-    x = 0.45724*rg**2*tc**2/pc
+    x = 0.457235*rg**2*tc**2/pc
     return(x)
 
 def b(tc,pc):
-    """ b parameter for the PR EOS in units of m**3/mol
+    """ b parameter for the PRSV EOS in units of m**3/mol
     
     Parameters
     ----------
@@ -198,17 +234,17 @@ def b(tc,pc):
     Returns
     -------
     float
-        b = 0.07780*rg*tc/pc    (m**3/mol)        
+        b = 0.077796*rg*tc/pc    (m**3/mol)        
     """ 
-    x = 0.07780*rg*tc/pc
+    x = 0.077796*rg*tc/pc
     return(x)
 
 # ------------------------------------------------------------------------ #
 # Supporting functions to place the equation of state in the cubic z form. #
 # ------------------------------------------------------------------------ #
 
-def ThetaPrime(t,p,tc,pc,w):
-    """ ThetaPrime parameter for the PR EOS in cubic z form (unitless)
+def ThetaPrime(t,p,tc,pc,w,k1):
+    """ ThetaPrime parameter for the PRSV EOS in cubic z form (unitless)
 
     All cubic equations of state can be placed into a generalized dimensionless
     form that is cubic in z (compressibility) as shown below [1].
@@ -219,7 +255,7 @@ def ThetaPrime(t,p,tc,pc,w):
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
     
     Determining z can be done by solving this third-order polynomial. This
-    function returns ThetaPrime for the PR EOS which is needed for two of
+    function returns ThetaPrime for the PRSV EOS which is needed for two of
     the coefficients.
     
     This function will usually not be called directly by a user.
@@ -241,6 +277,9 @@ def ThetaPrime(t,p,tc,pc,w):
     w : float
         acentric factor of the compound (unitless)
 
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+        
     Returns
     -------
     float
@@ -251,20 +290,78 @@ def ThetaPrime(t,p,tc,pc,w):
     .. [1] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
        of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).
     """ 
-    x = a(tc,pc)*alpha(t,tc,w)*p/(rg*t)**2
+    x = a(tc,pc)*alpha(t,tc,w,k1)*p/(rg*t)**2
     return(x)
 
-def dThetadT(t,tc,pc,w):
+def dkappadT(t,tc,k1):
+    """ first temperature derivative of the kappa parameter for the
+    PRSV EOS in units of K**-1
+    
+    Temperature derivatives of a cubic equation of state are needed for some 
+    thermodynamic properties. This function returns the first temperature 
+    derivative of kappa. 
+    
+    This function will usually not be called directly by a user.
+    
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+        
+    tc : float
+        critical temperature of the compound (K)
+        
+    w : float
+        acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+        
+    Returns
+    -------
+    float
+        first temperature derivative of kappa (K**-1)
+ 
+    """ 
+    x = k1*(-1.0/tc*(1 + (t/tc)**0.5) + 0.5/(t*tc)**0.5*(0.7-t/tc))
+    return(x)
+    
+def d2kappadT2(t,tc,k1):
+    """ second temperature derivative of the kappa parameter for the
+    PRSV EOS in units of K**-2
+    
+    Temperature derivatives of a cubic equation of state are needed for some 
+    thermodynamic properties. This function returns the second temperature 
+    derivative of kappa. 
+    
+    This function will usually not be called directly by a user.
+    
+    Parameters
+    ----------
+    t : float
+        system temperature (K)
+        
+    tc : float
+        critical temperature of the compound (K)
+        
+    w : float
+        acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+        
+    Returns
+    -------
+    float
+        second temperature derivative of kappa (K**-2)
+ 
+    """ 
+    x = k1*(-0.75*tc**-1.5*t**-0.5 - 0.175*tc**-0.5*t**-1.5)
+    return(x)
+
+def dThetadT(t,tc,pc,w,k1):
     """ first temperature derivative of the Theta parameter for the
-    PR EOS in units of Pa*m**6/(mol**2*K)
-    
-    All cubic equations of state can be placed into a generalized dimensionless
-    form that is cubic in z (compressibility) as shown below [1].
-    
-    z**3 + 
-    (deltaPrime - BPrime -1)*z**2 +
-    [ThetaPrime + epsilonPrime - deltaPrime*(BPrime + 1)]*z -
-    [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
+    PRSV EOS in units of Pa*m**6/(mol**2*K)
        
     Temperature derivatives of a cubic equation of state are needed for some 
     thermodynamic properties. This function returns the first temperature 
@@ -286,30 +383,22 @@ def dThetadT(t,tc,pc,w):
     w : float
         acentric factor of the compound (unitless)
 
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+        
     Returns
     -------
     float
-        dThetadT = -a*kappa*(alpha/(t*tc))**0.5    (Pa*m**6/(mol**2*K))
+        first temperature derivative of Theta (Pa*m**6/(mol**2*K))
 
-    References
-    ----------
-    .. [1] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
-       of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).
     """ 
-    x = -1.0*a(tc,pc)*kappa(w)*np.sqrt(alpha(t,tc,w)/t/tc)
+    x = 2.0*a(tc,pc)*(np.sqrt(alpha(t,tc,w,k1))*(dkappadT(t,tc,k1) - \
+        0.5*kappa(t,tc,w,k1)/(tc*t)**0.5 - (t/tc)**0.5*dkappadT(t,tc,k1)))
     return(x)
 
-def d2ThetadT2(t,tc,pc,w):
+def d2ThetadT2(t,tc,pc,w,k1):
     """ second temperature derivative of the Theta parameter for the
-    PR EOS in units of Pa*m**6/(mol**2*K**2)
-    
-    All cubic equations of state can be placed into a generalized dimensionless
-    form that is cubic in z (compressibility) as shown below [1].
-    
-    z**3 + 
-    (deltaPrime - BPrime -1)*z**2 +
-    [ThetaPrime + epsilonPrime - deltaPrime*(BPrime + 1)]*z -
-    [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
+    PRSV EOS in units of Pa*m**6/(mol**2*K**2)
     
     Temperature derivatives of a cubic equation of state are needed for some 
     thermodynamic properties. This function returns the second temperature 
@@ -331,24 +420,28 @@ def d2ThetadT2(t,tc,pc,w):
     w : float
         acentric factor of the compound (unitless)
 
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+        
     Returns
     -------
     float
-        dThetadT = 0.5*a(tc,pc)*kappa(w)/sqrttc/t*(np.sqrt(alpha(t,tc,w)/t) +
-        kappa(w)/sqrttc)    (Pa*m**6/(mol**2*K**2))
+        the second temperature derivative of the Theata parameter
+        (Pa*m**6/(mol**2*K**2))
 
-    References
-    ----------
-    .. [1] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
-       of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).    
     """ 
     sqrttc = np.sqrt(tc)
-    x = 0.5*a(tc,pc)*kappa(w)/sqrttc/t*(np.sqrt(alpha(t,tc,w)/t) + \
-        kappa(w)/sqrttc)
+    sqrtt = np.sqrt(t)
+    x = 2.0*a(tc,pc)*(np.sqrt(alpha(t,tc,w,k1))*(d2kappadT2(t,tc,k1) - \
+        0.5/sqrttc*(-0.5*t**-1.5*kappa(t,tc,w,k1) + dkappadT(t,tc,k1)/sqrtt) \
+        - (0.5/sqrttc/sqrtt*dkappadT(t,tc,k1) + \
+           sqrtt/sqrttc*d2kappadT2(t,tc,k1))) + \
+        (dkappadT(t,tc,k1) - 0.5*kappa(t,tc,w,k1)/sqrttc/sqrtt - \
+           sqrtt/sqrttc*dkappadT(t,tc,k1))**2)
     return(x)
 
 def BPrime(t,p,tc,pc):
-    """ BPrime parameter for the PR EOS in cubic z form (unitless)
+    """ BPrime parameter for the PRSV EOS in cubic z form (unitless)
 
     All cubic equations of state can be placed into a generalized dimensionless
     form that is cubic in z (compressibility) as shown below [1].
@@ -359,7 +452,7 @@ def BPrime(t,p,tc,pc):
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
     
     Determining z can be done by solving this third-order polynomial. This
-    function returns BPrime for the PR EOS which is needed for three of
+    function returns BPrime for the PRSV EOS which is needed for three of
     the coefficients.
 
     This function will usually not be called directly by a user.
@@ -392,7 +485,7 @@ def BPrime(t,p,tc,pc):
     return(x)
 
 def deltaPrime(t,p,tc,pc):
-    """ deltaPrime parameter for the PR EOS in cubic z form (unitless)
+    """ deltaPrime parameter for the PRSV EOS in cubic z form (unitless)
 
     All cubic equations of state can be placed into a generalized dimensionless
     form that is cubic in z (compressibility) as shown below [1].
@@ -403,7 +496,7 @@ def deltaPrime(t,p,tc,pc):
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
     
     Determining z can be done by solving this third-order polynomial. This
-    function returns deltaPrime for the PR EOS which is needed for two of
+    function returns deltaPrime for the PRSV EOS which is needed for two of
     the coefficients.
     
     This function will usually not be called directly by a user.
@@ -436,7 +529,7 @@ def deltaPrime(t,p,tc,pc):
     return(x)    
 
 def epsilonPrime(t,p,tc,pc):
-    """ epsilonPrime parameter for the PR EOS in cubic z form (unitless)
+    """ epsilonPrime parameter for the PRSV EOS in cubic z form (unitless)
 
     All cubic equations of state can be placed into a generalized dimensionless
     form that is cubic in z (compressibility) as shown below [1].
@@ -447,7 +540,7 @@ def epsilonPrime(t,p,tc,pc):
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
     
     Determining z can be done by solving this third-order polynomial. This
-    function returns epsilonPrime for the PR EOS which is needed for two of
+    function returns epsilonPrime for the PRSV EOS which is needed for two of
     the coefficients.
     
     This function will usually not be called directly by a user.
@@ -480,7 +573,7 @@ def epsilonPrime(t,p,tc,pc):
     return(x)
 
 def etaPrime(t,p,tc,pc):
-    """ etaPrime parameter for the PR EOS in cubic z form (unitless)
+    """ etaPrime parameter for the PRSV EOS in cubic z form (unitless)
 
     All cubic equations of state can be placed into a generalized dimensionless
     form that is cubic in z (compressibility) as shown below [1].
@@ -491,7 +584,7 @@ def etaPrime(t,p,tc,pc):
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
     
     Determining z can be done by solving this third-order polynomial. This
-    function returns etaPrime for the PR EOS which is needed for two of
+    function returns etaPrime for the PRSV EOS which is needed for two of
     the coefficients.
     
     This function will usually not be called directly by a user.
@@ -527,8 +620,8 @@ def etaPrime(t,p,tc,pc):
 # Compressibility Functions                                                #
 # ------------------------------------------------------------------------ # 
     
-def zl(t,p,tc,pc,w):
-    """liquid compressibility from the PR EOS (unitless)
+def zl(t,p,tc,pc,w,k1):
+    """liquid compressibility from the PRSV EOS (unitless)
 
     Parameters
     ----------
@@ -546,12 +639,15 @@ def zl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         compressibility of the liquid phase at `t` and `p` for the compound
-        described by `tc`, `pc`, and `w`    (unitless)
+        described by `tc`, `pc`, `w`, and `k1`    (unitless)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
@@ -560,18 +656,18 @@ def zl(t,p,tc,pc,w):
     y = np.zeros(4)
     y[0] = 1.0
     y[1] = deltaPrime(t,p,tc,pc) - BPrime(t,p,tc,pc) - 1.0
-    y[2] = ThetaPrime(t,p,tc,pc,w) + epsilonPrime(t,p,tc,pc) - \
+    y[2] = ThetaPrime(t,p,tc,pc,w,k1) + epsilonPrime(t,p,tc,pc) - \
            deltaPrime(t,p,tc,pc)*(BPrime(t,p,tc,pc) + 1.0)
     y[3] = -1.0*(epsilonPrime(t,p,tc,pc)*(BPrime(t,p,tc,pc) + 1.0) + \
-           ThetaPrime(t,p,tc,pc,w)*etaPrime(t,p,tc,pc))
+           ThetaPrime(t,p,tc,pc,w,k1)*etaPrime(t,p,tc,pc))
     r = np.roots(y)
     for i in range(3):
         if(np.imag(r[i]) != 0.0): r[i] = 10**308
     x = np.real(np.sort(r))
     return(x[0])
 
-def zv(t,p,tc,pc,w):
-    """vapor compressibility from the PR EOS (unitless)
+def zv(t,p,tc,pc,w,k1):
+    """vapor compressibility from the PRSV EOS (unitless)
 
     Parameters
     ----------
@@ -589,12 +685,15 @@ def zv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         compressibility of the vapor phase at `t` and `p` for the compound
-        described by `tc`, `pc`, and `w`    (unitless)
+        described by `tc`, `pc`, `w`, and `k1`    (unitless)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
@@ -603,10 +702,10 @@ def zv(t,p,tc,pc,w):
     y = np.zeros(4)
     y[0] = 1.0
     y[1] = deltaPrime(t,p,tc,pc) - BPrime(t,p,tc,pc) - 1.0
-    y[2] = ThetaPrime(t,p,tc,pc,w) + epsilonPrime(t,p,tc,pc) - \
+    y[2] = ThetaPrime(t,p,tc,pc,w,k1) + epsilonPrime(t,p,tc,pc) - \
            deltaPrime(t,p,tc,pc)*(BPrime(t,p,tc,pc) + 1.0)
     y[3] = -1.0*(epsilonPrime(t,p,tc,pc)*(BPrime(t,p,tc,pc) + 1.0) + \
-           ThetaPrime(t,p,tc,pc,w)*etaPrime(t,p,tc,pc))
+           ThetaPrime(t,p,tc,pc,w,k1)*etaPrime(t,p,tc,pc))
     r = np.roots(y)
     for i in range(3):
         if(np.imag(r[i]) != 0.0): r[i] = 0.0
@@ -617,8 +716,8 @@ def zv(t,p,tc,pc,w):
 # The Pressure Function                                                    #
 # ------------------------------------------------------------------------ #
     
-def P(t,v,tc,pc,w):
-    """pressure from the PR EOS in units of Pa
+def P(t,v,tc,pc,w,k1):
+    """pressure from the PRSV EOS in units of Pa
 
     Parameters
     ----------
@@ -636,23 +735,26 @@ def P(t,v,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         pressure of the system at `t` and `v` for the compound
-        described by `tc`, `pc`, and `w`    (Pa)       
+        described by `tc`, `pc`, `w`, and `k1`    (Pa)       
     """
     bb = b(tc,pc)
-    x = rg*t/(v-bb) - a(tc,pc)*alpha(t,tc,w)/(v**2 + 2*bb*v - bb**2)
+    x = rg*t/(v-bb) - a(tc,pc)*alpha(t,tc,w,k1)/(v**2 + 2*bb*v - bb**2)
     return(x)
 
 # ------------------------------------------------------------------------ #
 # Molar Volume Functions                                                   #
 # ------------------------------------------------------------------------ #
     
-def vl(t,p,tc,pc,w):
-    """liquid molar volume from the PR EOS in units of m**3/mol
+def vl(t,p,tc,pc,w,k1):
+    """liquid molar volume from the PRSV EOS in units of m**3/mol
 
     Parameters
     ----------
@@ -670,22 +772,25 @@ def vl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         liquid molar volume of the system at `t` and `p` for the compound
-        described by `tc`, `pc`, and `w`    (m**3/mol)
+        described by `tc`, `pc`, `w`, and `k1`    (m**3/mol)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
         (from pr.vv(t,p,tc,pc,w)) will be equal.
     """
-    x = zl(t,p,tc,pc,w)*rg*t/p
+    x = zl(t,p,tc,pc,w,k1)*rg*t/p
     return(x)
 
-def vv(t,p,tc,pc,w):
-    """vapor molar volume from the PR EOS in units of m**3/mol
+def vv(t,p,tc,pc,w,k1):
+    """vapor molar volume from the PRSV EOS in units of m**3/mol
 
     Parameters
     ----------
@@ -703,27 +808,30 @@ def vv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         vapor molar volume of the system at `t` and `p` for the compound
-        described by `tc`, `pc`, and `w`    (m**3/mol)
+        described by `tc`, `pc`, `w`, and `k1`    (m**3/mol)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
         (from pr.vl(t,p,tc,pc,w)) will be equal.
     """
-    x = zv(t,p,tc,pc,w)*rg*t/p
+    x = zv(t,p,tc,pc,w,k1)*rg*t/p
     return(x)
     
 # ------------------------------------------------------------------------ #
 # Partial Derivative Functions                                             #
 # ------------------------------------------------------------------------ #
 
-def dPdV(t,v,tc,pc,w):
+def dPdV(t,v,tc,pc,w,k1):
     """the partial derivative of pressure with respect to molar volume at 
-    constant temperature for the PR EOS in units of Pa*mol/m**3
+    constant temperature for the PRSV EOS in units of Pa*mol/m**3
 
     Parameters
     ----------
@@ -741,23 +849,26 @@ def dPdV(t,v,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         the partial derivative of the pressure with respect to `v` at
-        constant `t` for the PR EOS for the compound described by 
-        `tc`, `pc`, and `w`; the phase correspond to the phase of `v`
+        constant `t` for the PRSV EOS for the compound described by 
+        `tc`, `pc`, `w`, and `k1`; the phase correspond to the phase of `v`
         (Pa*mol/m**3) 
     """
-    aalpha = a(tc,pc)*alpha(t,tc,w)
+    aalpha = a(tc,pc)*alpha(t,tc,w,k1)
     bb = b(tc,pc)
     x = aalpha*2.0*(v+bb)/(v**2+2.0*v*bb - bb**2)**2 - rg*t/(v-bb)**2
     return(x)
     
-def dPdT(t,v,tc,pc,w):
+def dPdT(t,v,tc,pc,w,k1):
     """the partial derivative of pressure with respect to temperature at 
-    constant molar volume for the PR EOS in units of Pa/K
+    constant molar volume for the PRSV EOS in units of Pa/K
 
     Parameters
     ----------
@@ -775,22 +886,25 @@ def dPdT(t,v,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         the partial derivative of the pressure with respect to `t` at
-        constant `v` for the PR EOS for the compound described by 
-        `tc`, `pc`, and `w`; the phase correspond to the phase of `v`
+        constant `v` for the PRSV EOS for the compound described by 
+        `tc`, `pc`, `w`, and `k1`; the phase correspond to the phase of `v`
         (Pa/K) 
     """
     bb = b(tc,pc)
-    x = rg/(v-bb) - dThetadT(t,tc,pc,w)/(v**2 + 2.0*v*bb - bb**2)
+    x = rg/(v-bb) - dThetadT(t,tc,pc,w, k1)/(v**2 + 2.0*v*bb - bb**2)
     return(x) 
     
-def dVdT(t,v,tc,pc,w):
+def dVdT(t,v,tc,pc,w,k1):
     """the partial derivative of molar volume with respect to temperature at 
-    constant pressure for the PR EOS in units of m**3/(mol*K)
+    constant pressure for the PRSV EOS in units of m**3/(mol*K)
 
     Parameters
     ----------
@@ -808,31 +922,34 @@ def dVdT(t,v,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
-        
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+           
     Returns
     -------
     float
         the partial derivative of the molar volume with respect to `t` at
-        constant `p` for the PR EOS for the compound described by 
-        `tc`, `pc`, and `w`; the phase correspond to the phase of `v`
+        constant `p` for the PRSV EOS for the compound described by 
+        `tc`, `pc`, `w`, and `k1`; the phase correspond to the phase of `v`
         (m**3/(mol*K)) 
     """
-    return(-1.0*dPdT(t,v,tc,pc,w)/dPdV(t,v,tc,pc,w))
+    return(-1.0*dPdT(t,v,tc,pc,w,k1)/dPdV(t,v,tc,pc,w,k1))
 
 # ------------------------------------------------------------------------ #
 # Residual Property Functions                                              #
 # ------------------------------------------------------------------------ #
     
-def hrl(t,p,tc,pc,w): 
-    """liquid residual enthalpy from the PR EOS in units of J/mol
+def hrl(t,p,tc,pc,w,k1): 
+    """liquid residual enthalpy from the PRSV EOS in units of J/mol
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -842,36 +959,39 @@ def hrl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         liquid residual enthalpy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/mol)
+        compound described by `tc`, `pc`, `w`, and `k1`    (J/mol)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.hrv(t,p,tc,pc,w)) will be equal. 
+        (from pr.hrv(t,p,tc,pc,w,k1)) will be equal. 
     """
     sqrt2=np.sqrt(2.0)
-    z = zl(t,p,tc,pc,w)
-    x = (t*dThetadT(t,tc,pc,w) - a(tc,pc)*alpha(t,tc,w))/ \
+    z = zl(t,p,tc,pc,w,k1)
+    x = (t*dThetadT(t,tc,pc,w,k1) - a(tc,pc)*alpha(t,tc,w,k1))/ \
         (2.0*sqrt2*b(tc,pc))* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc))) + \
         rg*t*(z-1.0)
     return(x)
 
-def hrv(t,p,tc,pc,w):
-    """vapor residual enthalpy from the PR EOS in units of J/mol
+def hrv(t,p,tc,pc,w,k1):
+    """vapor residual enthalpy from the PRSV EOS in units of J/mol
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -881,20 +1001,23 @@ def hrv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         vapor residual enthalpy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/mol)
+        compound described by `tc`, `pc`, `w`, `k1`    (J/mol)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.hrl(t,p,tc,pc,w)) will be equal. 
+        (from pr.hrl(t,p,tc,pc,w,k1)) will be equal. 
     """
     sqrt2=np.sqrt(2.0)
-    z = zv(t,p,tc,pc,w)
-    x = (t*dThetadT(t,tc,pc,w) - a(tc,pc)*alpha(t,tc,w))/ \
+    z = zv(t,p,tc,pc,w,k1)
+    x = (t*dThetadT(t,tc,pc,w,k1) - a(tc,pc)*alpha(t,tc,w,k1))/ \
         (2.0*sqrt2*b(tc,pc))* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc))) + \
@@ -902,16 +1025,16 @@ def hrv(t,p,tc,pc,w):
     return(x)
 
 
-def srl(t,p,tc,pc,w):
-    """liquid residual entropy from the PR EOS in units of J mol**-1 K**-1
+def srl(t,p,tc,pc,w,k1):
+    """liquid residual entropy from the PRSV EOS in units of J mol**-1 K**-1
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -921,35 +1044,38 @@ def srl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
-        
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+                
     Returns
     -------
     float
         liquid residual entropy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J mol**-1 K**-1)
+        compound described by `tc`, `pc`, `w`, `k1`    (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.srv(t,p,tc,pc,w)) will be equal. 
+        (from pr.srv(t,p,tc,pc,w,k1)) will be equal. 
     """    
     sqrt2=np.sqrt(2.0)
-    z = zl(t,p,tc,pc,w)
-    x = dThetadT(t,tc,pc,w)/(2.0*sqrt2*b(tc,pc))* \
+    z = zl(t,p,tc,pc,w,k1)
+    x = dThetadT(t,tc,pc,w,k1)/(2.0*sqrt2*b(tc,pc))* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc))) + \
         rg*np.log(z-BPrime(t,p,tc,pc))
     return(x)
 
-def srv(t,p,tc,pc,w):
-    """vapor residual entropy from the PR EOS in units of J mol**-1 K**-1
+def srv(t,p,tc,pc,w,k1):
+    """vapor residual entropy from the PRSV EOS in units of J mol**-1 K**-1
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -959,35 +1085,38 @@ def srv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
-        
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
+                
     Returns
     -------
     float
         vapor residual entropy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J mol**-1 K**-1)
+        compound described by `tc`, `pc`, `w`, and `k1`    (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.srl(t,p,tc,pc,w)) will be equal. 
+        (from pr.srl(t,p,tc,pc,w,k1)) will be equal. 
     """
     sqrt2=np.sqrt(2.0)
-    z = zv(t,p,tc,pc,w)
-    x = dThetadT(t,tc,pc,w)/(2.0*sqrt2*b(tc,pc))* \
+    z = zv(t,p,tc,pc,w,k1)
+    x = dThetadT(t,tc,pc,w,k1)/(2.0*sqrt2*b(tc,pc))* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc))) + \
         rg*np.log(z-BPrime(t,p,tc,pc))
     return(x)
 
-def arl(t,p,tc,pc,w):
-    """liquid residual Helmholtz energy from the PR EOS in units of J/mol
+def arl(t,p,tc,pc,w,k1):
+    """liquid residual Helmholtz energy from the PRSV EOS in units of J/mol
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -997,33 +1126,36 @@ def arl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         liquid residual Helmholtz energy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/mol)
+        compound described by `tc`, `pc`, `w`, and `k1`    (J/mol)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.arv(t,p,tc,pc,w)) will be equal. 
+        (from pr.arv(t,p,tc,pc,w,k1)) will be equal. 
     """    
-    h = hrl(t,p,tc,pc,w)
-    s = srl(t,p,tc,pc,w)
-    z = zl(t,p,tc,pc,w)
+    h = hrl(t,p,tc,pc,w,k1)
+    s = srl(t,p,tc,pc,w,k1)
+    z = zl(t,p,tc,pc,w,k1)
     x = h - rg*t*(z - 1.0) - t*s
     return(x)
 
-def arv(t,p,tc,pc,w):
-    """vapor residual Helmholtz energy from the PR EOS in units of J/mol
+def arv(t,p,tc,pc,w,k1):
+    """vapor residual Helmholtz energy from the PRSV EOS in units of J/mol
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1033,35 +1165,38 @@ def arv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         vapor residual Helmholtz energy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/mol)
+        compound described by `tc`, `pc`, `w`, and `k1`    (J/mol)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.arl(t,p,tc,pc,w)) will be equal. 
+        (from pr.arl(t,p,tc,pc,w,k1)) will be equal. 
     """
-    h = hrv(t,p,tc,pc,w)
-    s = srv(t,p,tc,pc,w)
-    z = zv(t,p,tc,pc,w)
+    h = hrv(t,p,tc,pc,w,k1)
+    s = srv(t,p,tc,pc,w,k1)
+    z = zv(t,p,tc,pc,w,k1)
     x = h - rg*t*(z - 1.0) - t*s
     return(x)
 
 
-def lnphil(t,p,tc,pc,w):
+def lnphil(t,p,tc,pc,w,k1):
     """natural logarithm of the liquid phase fugacity coefficient from the
-    PR EOS (unitless)
+    PRSV EOS (unitless)
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1071,38 +1206,41 @@ def lnphil(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         natural logarithm of the liquid phase fugacity coefficient of the
         system at `t` and `p` for the compound described by `tc`, `pc`, 
-        and `w`    (unitless)
+        `w`, and `k1`    (unitless)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.lnphiv(t,p,tc,pc,w)) will be equal. The two values will 
+        (from pr.lnphiv(t,p,tc,pc,w,k1)) will be equal. The two values will 
         also be equal if the system is in vapor/liquid equilibrium.
     """    
     sqrt2 = np.sqrt(2.0)
-    z = zl(t,p,tc,pc,w)
-    x = -1.0/rg/t*a(tc,pc)*alpha(t,tc,w)/(2.0*sqrt2*b(tc,pc))* \
+    z = zl(t,p,tc,pc,w,k1)
+    x = -1.0/rg/t*a(tc,pc)*alpha(t,tc,w,k1)/(2.0*sqrt2*b(tc,pc))* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc))) - \
         np.log(z - BPrime(t,p,tc,pc)) + z - 1.0
     return(x)
 
-def lnphiv(t,p,tc,pc,w):
+def lnphiv(t,p,tc,pc,w,k1):
     """natural logarithm of the vapor phase fugacity coefficient from the
-    PR EOS (unitless)
+    PRSV EOS (unitless)
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1112,38 +1250,41 @@ def lnphiv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         natural logarithm of the vapor phase fugacity coefficient of the
         system at `t` and `p` for the compound described by `tc`, `pc`, 
-        and `w`    (unitless)
+        `w`, and `k1`    (unitless)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.lnphil(t,p,tc,pc,w)) will be equal. The two values will 
+        (from pr.lnphil(t,p,tc,pc,w,k1)) will be equal. The two values will 
         also be equal if the system is in vapor/liquid equilibrium.
     """
     sqrt2 = np.sqrt(2.0)
-    z = zv(t,p,tc,pc,w)
-    x = -1.0/rg/t*a(tc,pc)*alpha(t,tc,w)/(2.0*sqrt2*b(tc,pc))* \
+    z = zv(t,p,tc,pc,w,k1)
+    x = -1.0/rg/t*a(tc,pc)*alpha(t,tc,w,k1)/(2.0*sqrt2*b(tc,pc))* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc))) - \
         np.log(z - BPrime(t,p,tc,pc)) + z - 1.0
     return(x)
 
 
-def grl(t,p,tc,pc,w):
-    """liquid residual Gibbs energy from the PR EOS in units of J/mol
+def grl(t,p,tc,pc,w,k1):
+    """liquid residual Gibbs energy from the PRSV EOS in units of J/mol
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1153,30 +1294,33 @@ def grl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         liquid residual Gibbs energy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/mol)
+        compound described by `tc`, `pc`, `w`, and `k1`    (J/mol)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.grv(t,p,tc,pc,w)) will be equal. 
+        (from pr.grv(t,p,tc,pc,w,k1)) will be equal. 
     """    
-    x = rg*t*lnphil(t,p,tc,pc,w)
+    x = rg*t*lnphil(t,p,tc,pc,w,k1)
     return(x)
 
-def grv(t,p,tc,pc,w):
-    """vapor residual Gibbs energy from the PR EOS in units of J/mol
+def grv(t,p,tc,pc,w,k1):
+    """vapor residual Gibbs energy from the PRSV EOS in units of J/mol
 
     Parameters
     ----------
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1186,22 +1330,25 @@ def grv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         vapor residual Gibbs energy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/mol)
+        compound described by `tc`, `pc`, `w`, and `k1`    (J/mol)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.grl(t,p,tc,pc,w)) will be equal. 
+        (from pr.grl(t,p,tc,pc,w,k1)) will be equal. 
     """    
-    x = rg*t*lnphiv(t,p,tc,pc,w)
+    x = rg*t*lnphiv(t,p,tc,pc,w,k1)
     return(x)
 
-def cvrv(t,p,tc,pc,w):
-    """vapor residual isochoric heat capacity from the PR EOS in units of
+def cvrv(t,p,tc,pc,w,k1):
+    """vapor residual isochoric heat capacity from the PRSV EOS in units of
        J mol**-1 K**-1
 
     Parameters
@@ -1209,8 +1356,8 @@ def cvrv(t,p,tc,pc,w):
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1220,27 +1367,30 @@ def cvrv(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         vapor residual isochoric heat capcity of the system at `t`
-        and `p` for the compound described by `tc`, `pc`, and `w`
+        and `p` for the compound described by `tc`, `pc`, `w`, and `k1`
         (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.cprl(t,p,tc,pc,w)) will be equal. 
+        (from pr.cprl(t,p,tc,pc,w,k1)) will be equal. 
     """
-    z = zv(t,p,tc,pc,w)
+    z = zv(t,p,tc,pc,w,k1)
     sqrt2 = np.sqrt(2.0)
-    x = t/(2.0*sqrt2*b(tc,pc))*d2ThetadT2(t,tc,pc,w)* \
+    x = t/(2.0*sqrt2*b(tc,pc))*d2ThetadT2(t,tc,pc,w,k1)* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc)))
     return(x)
     
-def cvrl(t,p,tc,pc,w):
-    """liquid residual isochoric heat capacity from the PR EOS in units of
+def cvrl(t,p,tc,pc,w,k1):
+    """liquid residual isochoric heat capacity from the PRSV EOS in units of
        J mol**-1 K**-1
 
     Parameters
@@ -1248,8 +1398,8 @@ def cvrl(t,p,tc,pc,w):
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1259,27 +1409,30 @@ def cvrl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         liquid residual isochoric heat capcity of the system at `t`
-        and `p` for the compound described by `tc`, `pc`, and `w`
+        and `p` for the compound described by `tc`, `pc`, `w`, and `k1`
         (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.cprv(t,p,tc,pc,w)) will be equal. 
+        (from pr.cprv(t,p,tc,pc,w,k1)) will be equal. 
     """
-    z = zl(t,p,tc,pc,w)
+    z = zl(t,p,tc,pc,w,k1)
     sqrt2 = np.sqrt(2.0)
-    x = t/(2.0*sqrt2*b(tc,pc))*d2ThetadT2(t,tc,pc,w)* \
+    x = t/(2.0*sqrt2*b(tc,pc))*d2ThetadT2(t,tc,pc,w,k1)* \
         np.log((z + (1.0+sqrt2)*BPrime(t,p,tc,pc))/ \
         (z + (1.0-sqrt2)*BPrime(t,p,tc,pc)))
     return(x)
     
-def cprv(t,p,tc,pc,w):
-    """vapor residual isobaric heat capacity from the PR EOS in units of
+def cprv(t,p,tc,pc,w,k1):
+    """vapor residual isobaric heat capacity from the PRSV EOS in units of
        J mol**-1 K**-1
 
     Parameters
@@ -1303,24 +1456,24 @@ def cprv(t,p,tc,pc,w):
     -------
     float
         vapor residual isobaric heat capcity of the system at `t`
-        and `p` for the compound described by `tc`, `pc`, and `w`
+        and `p` for the compound described by `tc`, `pc`, `w`, and `k1`
         (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
-        (from pr.cprl(t,p,tc,pc,w)) will be equal. 
+        (from pr.cprl(t,p,tc,pc,w,k1)) will be equal. 
     """
-    v = vv(t,p,tc,pc,w)
+    v = vv(t,p,tc,pc,w,k1)
     bb = b(tc,pc)
-    x = cvrv(t,p,tc,pc,w) - \
-        t*(rg/(v - bb) - dThetadT(t,tc,pc,w)/(v**2 + 2*v*bb - bb**2))**2/ \
+    x = cvrv(t,p,tc,pc,w,k1) - \
+        t*(rg/(v - bb) - dThetadT(t,tc,pc,w,k1)/(v**2 + 2*v*bb - bb**2))**2/ \
         (-rg*t/(v - bb)**2 + \
-        (a(tc,pc)*alpha(t,tc,w)*2.0*(v + bb))/(v**2 + 2*v*bb - bb**2)**2) - \
+        (a(tc,pc)*alpha(t,tc,w,k1)*2.0*(v + bb))/(v**2 + 2*v*bb - bb**2)**2) - \
         rg
     return(x)
     
-def cprl(t,p,tc,pc,w):
-    """liquid residual isobaric heat capacity from the PR EOS in units of
+def cprl(t,p,tc,pc,w,k1):
+    """liquid residual isobaric heat capacity from the PRSV EOS in units of
        J mol**-1 K**-1
 
     Parameters
@@ -1328,8 +1481,8 @@ def cprl(t,p,tc,pc,w):
     t : float
         system temperature (K)
         
-    p : float
-        system pressure (Pa)
+    v : float
+        system molar volume (m**3/mol)
         
     tc : float
         critical temperature of the compound (K)
@@ -1339,23 +1492,26 @@ def cprl(t,p,tc,pc,w):
         
     w : float
         acentric factor of the compound (unitless)
+
+    k1 : float
+        kappa_1 empirical parameter of the compound (unitless)
         
     Returns
     -------
     float
         liquid residual isobaric heat capcity of the system at `t`
-        and `p` for the compound described by `tc`, `pc`, and `w`
+        and `p` for the compound described by `tc`, `pc`, `w`, and `k1`
         (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
-        (from pr.cprv(t,p,tc,pc,w)) will be equal. 
+        (from pr.cprv(t,p,tc,pc,w,k1)) will be equal. 
     """
-    v = vl(t,p,tc,pc,w)
+    v = vl(t,p,tc,pc,w,k1)
     bb = b(tc,pc)
-    x = cvrl(t,p,tc,pc,w) - \
-        t*(rg/(v - bb) - dThetadT(t,tc,pc,w)/(v**2 + 2*v*bb - bb**2))**2/ \
+    x = cvrl(t,p,tc,pc,w,k1) - \
+        t*(rg/(v - bb) - dThetadT(t,tc,pc,w,k1)/(v**2 + 2*v*bb - bb**2))**2/ \
         (-rg*t/(v - bb)**2 + \
-        (a(tc,pc)*alpha(t,tc,w)*2.0*(v + bb))/(v**2 + 2*v*bb - bb**2)**2) - \
+        (a(tc,pc)*alpha(t,tc,w,k1)*2.0*(v + bb))/(v**2 + 2*v*bb - bb**2)**2) - \
         rg
     return(x)

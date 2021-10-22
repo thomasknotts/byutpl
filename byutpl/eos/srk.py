@@ -51,7 +51,7 @@ dimensionless cubic z form.
     [ThetaPrime + epsilonPrime - deltaPrime*(BPrime + 1)]*z -
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
 
-For more information, see [1].
+For more information, see [3].
 
 This module is part of the byutpl package.              
 
@@ -96,18 +96,18 @@ vl(t,p,tc,pc,w)     liquid molar volume                     m**3/mol
 vv(t,p,tc,pc,w)     vapor molar volume                      m**3/mol    
 zl(t,p,tc,pc,w)     liquid compressibility                  unitless    
 zv(t,p,tc,pc,w)     vapor compressibility                   unitless
-hrl(t,p,tc,pc,w)    liquid residual enthalpy                J/(mol*K) 
-hrv(t,p,tc,pc,w)    vapor residual enthalpy                 J/(mol*K)   
-srl(t,p,tc,pc,w)    liquid residual entropy                 J/(mol*K) 
-srv(t,p,tc,pc,w)    vapor residual entropy                  J/(mol*K) 
+hrl(t,p,tc,pc,w)    liquid residual enthalpy                J mol**-1 K**-1 
+hrv(t,p,tc,pc,w)    vapor residual enthalpy                 J mol**-1 K**-1   
+srl(t,p,tc,pc,w)    liquid residual entropy                 J mol**-1 K**-1 
+srv(t,p,tc,pc,w)    vapor residual entropy                  J mol**-1 K**-1 
 arl(t,p,tc,pc,w)    liquid residual Helmholtz energy        J/mol 
 arv(t,p,tc,pc,w)    vapor residual Helmholtz energy         J/mol 
 grl(t,p,tc,pc,w)    liquid residual Gibbs energy            J/mol 
 grv(t,p,tc,pc,w)    vapor residual Gibbs energy             J/mol 
 lnphil(t,p,tc,pc,w) natural log liquid fugacity coefficient unitless
 lnphiv(t,p,tc,pc,w) natural log vapor fugacity coefficient  unitless
-cprl(t,p,tc,pc,w)   liquid residual isobaric heat capacity  J/(mol*K)
-cprv(t,p,tc,pc,w)   vapor residual isobaric heat capacity   J/(mol*K)
+cprl(t,p,tc,pc,w)   liquid residual isobaric heat capacity  J mol**-1 K**-1
+cprv(t,p,tc,pc,w)   vapor residual isobaric heat capacity   J mol**-1 K**-1
 ======================================================================
 
 The residual for property J is defined as
@@ -124,6 +124,7 @@ References
    of State for Phase Equilibrium Calculations. 2. Systems 
    Containing CO2, H2S, N2, and CO, Ind. Eng. Chem. Process Des.
    Dev., 17(4) 448-454 (1978).
+   
 .. [3] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
    of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).
 
@@ -939,7 +940,7 @@ def hrv(t,p,tc,pc,w):
 
 
 def srl(t,p,tc,pc,w):
-    """liquid residual entropy from the SRK EOS in units of J/(mol*K)
+    """liquid residual entropy from the SRK EOS in units of J mol**-1 K**-1
 
     Parameters
     ----------
@@ -962,7 +963,7 @@ def srl(t,p,tc,pc,w):
     -------
     float
         liquid residual entropy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/(mol*K))
+        compound described by `tc`, `pc`, and `w`    (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
@@ -973,7 +974,7 @@ def srl(t,p,tc,pc,w):
     return(x)
 
 def srv(t,p,tc,pc,w):
-    """vapor residual entropy from the SRK EOS in units of J/(mol*K)
+    """vapor residual entropy from the SRK EOS in units of J mol**-1 K**-1
 
     Parameters
     ----------
@@ -996,7 +997,7 @@ def srv(t,p,tc,pc,w):
     -------
     float
         vapor residual entropy of the system at `t` and `p` for the 
-        compound described by `tc`, `pc`, and `w`    (J/(mol*K))
+        compound described by `tc`, `pc`, and `w`    (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
@@ -1220,7 +1221,7 @@ def grv(t,p,tc,pc,w):
 
 def cvrv(t,p,tc,pc,w):
     """vapor residual isochoric heat capacity from the SRK EOS in units of
-       J/(mol*K)
+       J mol**-1 K**-1
 
     Parameters
     ----------
@@ -1244,7 +1245,7 @@ def cvrv(t,p,tc,pc,w):
     float
         vapor residual isochoric heat capcity of the system at `t`
         and `p` for the compound described by `tc`, `pc`, and `w`
-        (J/(mol*K))
+        (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
@@ -1257,7 +1258,7 @@ def cvrv(t,p,tc,pc,w):
     
 def cvrl(t,p,tc,pc,w):
     """liquid residual isochoric heat capacity from the SRK EOS in units of
-       J/(mol*K)
+       J mol**-1 K**-1
 
     Parameters
     ----------
@@ -1281,7 +1282,7 @@ def cvrl(t,p,tc,pc,w):
     float
         liquid residual isochoric heat capcity of the system at `t`
         and `p` for the compound described by `tc`, `pc`, and `w`
-        (J/(mol*K))
+        (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
@@ -1294,7 +1295,7 @@ def cvrl(t,p,tc,pc,w):
     
 def cprv(t,p,tc,pc,w):
     """vapor residual isobaric heat capacity from the SRK EOS in units of
-       J/(mol*K)
+       J mol**-1 K**-1
 
     Parameters
     ----------
@@ -1318,7 +1319,7 @@ def cprv(t,p,tc,pc,w):
     float
         vapor residual isobaric heat capcity of the system at `t`
         and `p` for the compound described by `tc`, `pc`, and `w`
-        (J/(mol*K))
+        (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the vapor
         value (from this function) and the liquid value 
@@ -1334,7 +1335,7 @@ def cprv(t,p,tc,pc,w):
     
 def cprl(t,p,tc,pc,w):
     """liquid residual isobaric heat capacity from the SRK EOS in units of
-       J/(mol*K)
+       J mol**-1 K**-1
 
     Parameters
     ----------
@@ -1358,7 +1359,7 @@ def cprl(t,p,tc,pc,w):
     float
         liquid residual isobaric heat capcity of the system at `t`
         and `p` for the compound described by `tc`, `pc`, and `w`
-        (J/(mol*K))
+        (J mol**-1 K**-1)
         
         If only one phase exists for the input conditions, both the liquid
         value (from this function) and the vapor value 
