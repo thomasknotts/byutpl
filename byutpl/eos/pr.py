@@ -31,7 +31,7 @@
 # ======================================================================== #
 """
 This module contains functions that calculate thermodynamic properties  
-at a given T and P using the Peng-Robinson equation of state.     
+at a given T and P using the Peng-Robinson equation of state. [1]     
 Functions are also available that calculate various partial derivatives of  
 P as a function of T and V. The functions require the critical             
 temperature, pressure, and acentric factor of the compound of interest.  
@@ -46,7 +46,7 @@ dimensionless cubic z form.
     [ThetaPrime + epsilonPrime - deltaPrime*(BPrime + 1)]*z -
     [epsilonPrime*(BPrime + 1) + ThetaPrime*etaPrime] = 0
 
-For more information, see [1].
+For more information, see [2].
 
 This module is part of the byutpl package.              
 
@@ -112,7 +112,10 @@ ideal gas.
 
 References
 ----------
-.. [1] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
+.. [1] D-Y Peng and D. B. Robinson, A New Two-Constant Equation of State,
+   Ind. Eng. Chem. Fundam., 15(1) 59-64 (1976).
+
+.. [2] B. E Poling, J. M. Prausnitz, J. P. O'Connell, The Properties
    of Gases and Liquids 5th edition,  McGraw-Hill, New York (2001).
 
 """
