@@ -30,6 +30,8 @@
 # Version 1.0 - September 2019                                             #
 # Version 2.0 - May 2021 Added docstring; Renamed from dippres.py to       #
 #               dippreqns.py; Reorganized package structure                #
+# Version 2.1 - October 2022 Changed functions to account for parameters   #
+#               matrices that are not completely filled.                   #
 # ======================================================================== #
 """
 This module contains functions that accept a temperature or 
@@ -111,7 +113,7 @@ def eq100(t,c):
     t : float
         tempearture (K)
         
-    c : 5x1 array 
+    c : 1x1 to 5x1 array 
         the coefficients for the equation
         c[0] : constant
         c[1] : coefficient on t term
@@ -124,8 +126,16 @@ def eq100(t,c):
     float
         Value of DIPPR Equation 100 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`.
-    """  
-    x = c[0] + c[1]*t + c[2]*t**2 + c[3]*t**3 + c[4]*t**4
+    """
+    lc = len(c)
+    if lc > 5:
+        print("Error: DIPPR Equation 100 requires 5 or fewer parameters.")
+        return(float("NaN"))
+    a=np.zeros(5)
+    for i in range(lc): a[i]=c[i]
+    if lc < 5:
+        for i in range(lc,5): a[i]=0.0
+    x = a[0] + a[1]*t + a[2]*t**2 + a[3]*t**3 + a[4]*t**4
     return(x) 
     
 def eq101(t,c):
@@ -141,7 +151,7 @@ def eq101(t,c):
     t : float
         tempearture (K)
         
-    c : 5x1 array 
+    c : 1x1 to 5x1 array 
         the coefficients for the equation
         c[0] : constant in exponent
         c[1] : coefficient on 1/t term in exponent
@@ -154,8 +164,16 @@ def eq101(t,c):
     float
         Value of DIPPR Equation 101 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`.
-    """  
-    x = np.exp(c[0] + c[1]/t + c[2]*np.log(t) + c[3]*t**c[4])
+    """
+    lc = len(c)
+    if lc > 5:
+        print("Error: DIPPR Equation 101 requires 5 or fewer parameters.")
+        return(float("NaN"))
+    a=np.zeros(5)
+    for i in range(lc): a[i]=c[i]
+    if lc < 5:
+        for i in range(lc,5): a[i]=0.0
+    x = np.exp(a[0] + a[1]/t + a[2]*np.log(t) + a[3]*t**a[4])
     return(x)
 
 def eq101a(t,c):
@@ -171,7 +189,7 @@ def eq101a(t,c):
     t : float
         tempearture (K)
         
-    c : 5x1 array 
+    c : 1x1 to 5x1 array 
         the coefficients for Equation 101; see documentation for `eq101`
     
     Returns
@@ -182,7 +200,15 @@ def eq101a(t,c):
         Units: default DIPPR units for property described by `c`
         divided by K; for VP or SVP, Pa/K
     """
-    x = -1.0*c[1]/t**2 + c[2]/t + c[3]*c[4]*t**(c[4]-1.0)
+    lc = len(c)
+    if lc > 5:
+        print("Error: DIPPR Equation 101a requires 5 or fewer parameters.")
+        return(float("NaN"))
+    a=np.zeros(5)
+    for i in range(lc): a[i]=c[i]
+    if lc < 5:
+        for i in range(lc,5): a[i]=0.0  
+    x = -1.0*a[1]/t**2 + a[2]/t + a[3]*a[4]*t**(a[4]-1.0)
     return(x)
 
 def eq102(t,c):
