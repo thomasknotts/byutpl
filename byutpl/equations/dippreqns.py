@@ -716,7 +716,54 @@ def eq127(t,c):
         c[3]*((c[4]/t)**2*np.exp(c[4]/t)/(np.exp(c[4]/t)-1)**2) + \
         c[5]*((c[6]/t)**2*np.exp(c[6]/t)/(np.exp(c[6]/t)-1)**2) 
     return(x)  
-  
+    
+def eq(t,c,eqid):
+    """Returns the value of DIPPR equation `eqid`
+    
+    This function returns the value of the DIPPR equation identified by
+    `eqid` at `t` using the coefficients in `c`. 
+    
+    Parameters
+    ----------
+    t : float
+        tempearture (K)
+        
+    c : 1x1 to 7x1 array 
+        the coefficients for the equation identifed by `eqid`
+        c[0] : first coefficient
+        c[1] : second coefficient
+        c[2] : third coefficient
+        c[3] : fourth coefficient
+        c[4] : fifth coefficient
+        c[5] : sixth coefficient
+        c[6] : seventh coefficient
+    
+    eqid : string
+           Equation id for the desired correlation. May be 100, 101,
+           102, 104, 105, 106, 107, 114, 115, 116, 119, 123,
+           124, or 127.
+        
+        
+    Returns
+    -------
+    float
+        Value of DIPPR Equation `eqid at `t` given `c`. 
+        Units: default DIPPR units for property described by `c` which 
+    """
+    if eqid == 100: return(eq100(t,c))
+    if eqid == 101: return(eq101(t,c))
+    if eqid == 102: return(eq102(t,c))
+    if eqid == 104: return(eq104(t,c))
+    if eqid == 105: return(eq105(t,c))
+    if eqid == 106: return(eq106(t,c))
+    if eqid == 107: return(eq107(t,c))
+    if eqid == 114: return(eq114(t,c))
+    if eqid == 115: return(eq115(t,c))
+    if eqid == 116: return(eq116(t,c))
+    if eqid == 119: return(eq119(t,c))
+    if eqid == 123: return(eq123(t,c))
+    if eqid == 124: return(eq124(t,c))
+    if eqid == 127: return(eq127(t,c))
   
   
   
