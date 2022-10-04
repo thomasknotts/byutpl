@@ -96,7 +96,7 @@ import numpy as np
 # -------------------------------------------------------------------- #
 # DIPPR Equations                                                      #
 # -------------------------------------------------------------------- #
-def fillcoeff(c,N):
+def fillcoeff(c):
     """Returns an Nx1 array that equals c and fills blanks.
        
     The DIPPR equations require a certain number of parameters.
@@ -114,15 +114,12 @@ def fillcoeff(c,N):
     
     Returns
     -------
-    Nx1 array of floats
+    7x1 array of floats
         The entries in `c` will be the first `len(c)` entries. 
-        If `N-len(c) >0`, the remaining entries will be zero.
+        If `7-len(c) >0`, the remaining entries will be zero.
     """
-    lc = len(c)
-    a=np.zeros(5)
-    for i in range(lc): a[i]=c[i]
-    if lc < N:
-        for i in range(lc,N): a[i]=0.0
+    a=np.zeros(7)
+    for i in range(len(c)): a[i]=c[i]
     return(a)
 
 def eq100(t,c):
@@ -155,11 +152,7 @@ def eq100(t,c):
         Value of DIPPR Equation 100 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`.
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 100 requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = a[0] + a[1]*t + a[2]*t**2 + a[3]*t**3 + a[4]*t**4
     return(x) 
     
@@ -190,11 +183,7 @@ def eq101(t,c):
         Value of DIPPR Equation 101 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`.
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 101 requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = np.exp(a[0] + a[1]/t + a[2]*np.log(t) + a[3]*t**a[4])
     return(x)
 
@@ -222,11 +211,7 @@ def eq101a(t,c):
         Units: default DIPPR units for property described by `c`
         divided by K; for VP or SVP, Pa/K
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 101a requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = -1.0*a[1]/t**2 + a[2]/t + a[3]*a[4]*t**(a[4]-1.0)
     return(x)
 
@@ -255,11 +240,7 @@ def eq102(t,c):
         Value of DIPPR Equation 102 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`
     """
-    N=4
-    if len(c) > N:
-        print("Error: DIPPR Equation 102 requires 4 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = a[0]*t**a[1]/(1 + a[2]/t + a[3]/t**2)
     return(x)
   
@@ -291,11 +272,7 @@ def eq104(t,c):
                should be m**3/mol
                
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 104 requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = a[0] + a[1]/t + a[2]/t**3 + a[3]/t**8 + a[4]/t**9
     return(x)
  
@@ -325,8 +302,8 @@ def eq105(t,c):
         Value of DIPPR Equation 105 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`.
     """
-    if len(c) != 4:
-        print("Error: DIPPR Equation 105 requires exactly 4 parameters.")
+    if np.count_nonzero(c) != 4:
+        print("Error: DIPPR Equation 105 requires exactly 4 nonzero parameters.")
         return(float("NaN"))
     x = c[0]/c[1]**(1 + (1 - t/c[2])**c[3])
     return(x)
@@ -353,8 +330,8 @@ def eq105a(t,c):
         Units: default DIPPR units for property described by `c`
         divided by K. For LDN, kmol/(m**3*K)
     """
-    if len(c) != 4:
-        print("Error: DIPPR Equation 105a requires exactly 4 parameters.")
+    if np.count_nonzero(c) != 4:
+        print("Error: DIPPR Equation 105a requires exactly 4 nonzero parameters.")
         return(float("NaN"))
     x = eq105(t,c)*c[3]/c[2]*np.log(c[1])*(1 - t/c[2])**(c[3]-1)
     return(x)
@@ -385,11 +362,7 @@ def eq106(tr,c):
         Value of DIPPR Equation 106 at `tr` given `c`. 
         Units: default DIPPR units for property described by `c`.
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 106 requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = a[0]*(1-tr)**(a[1] + a[2]*tr + a[3]*tr**2 + a[4]*tr**3)
     return(x)
 
@@ -418,11 +391,7 @@ def eq106a(tr,tc,c):
         Units: default DIPPR units for property described by `c`
         divided by K. For HVP, J/(kmol*K)
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 106a requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = eq106(tr,a)/tc*((np.log(1-tr)*(a[2] + 2*a[3]*tr + 3*a[4]*tr**2)) - \
         (a[1] + a[2]*tr + a[3]*tr**2 + a[4]*tr**3)/(1-tr))
     return(x)  
@@ -455,7 +424,7 @@ def eq107(t,c):
         Units: default DIPPR units for property described by `c` which
                should be J/(kmol*K)
     """
-    if len(c) != 5:
+    if len(c) < 5:
         print("Error: DIPPR Equation 107 requires exactly 5 parameters.")
         return(float("NaN"))
     x = c[0] + c[1]*((c[2]/t)/np.sinh(c[2]/t))**2 + \
@@ -490,7 +459,7 @@ def eq114(tau,c):
         Units: default DIPPR units for property described by `c` which
                should be J/(mol*K)
     """
-    if len(c) != 4:
+    if len(c) < 4:
         print("Error: DIPPR Equation 114 requires exactly 4 parameters.")
         return(float("NaN"))
     x = c[0]**2/tau + c[1] - 2*c[0]*c[2]*tau - c[0]*c[3]*tau**2 - \
@@ -524,11 +493,7 @@ def eq115(t,c):
         Units: default DIPPR units for property described by `c` which
                should be Pa
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 115 requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = np.exp(a[0] + a[1]/t + a[2]*np.log(t) + a[3]*t**2 + a[4]/t**2)
     return(x)
 
@@ -562,7 +527,7 @@ def eq116(tau,c):
         Units: default DIPPR units for property described by `c` which 
                should be kmol/m**3
     """
-    if len(c) != 5:
+    if len(c) < 5:
         print("Error: DIPPR Equation 116 requires exactly 5 parameters.")
         return(float("NaN"))
     x = c[0] + c[1] * tau**0.35 + c[2]*tau**(2/3) + c[3]*tau + \
@@ -601,7 +566,7 @@ def eq119(tau,c):
         Units: default DIPPR units for property described by `c` which 
                should be kmol/m**3
     """ 
-    if len(c) != 7:
+    if len(c) < 7:
         print("Error: DIPPR Equation 119 requires exactly 7 parameters.")
         return(float("NaN"))
     x = c[0] + c[1]*tau**(1/3) + c[2]*tau**(2/3) + c[3]*tau**(5/3) + \
@@ -636,7 +601,7 @@ def eq123(tau,c):
         Units: default DIPPR units for property described by `c` which 
                should be W/(m*K)
     """
-    if len(c) != 4:
+    if np.count_nonzero(c) != 4:
         print("Error: DIPPR Equation 123 requires exactly 4 parameters.")
         return(float("NaN"))
     x = c[0]*(1 + c[1]*tau**(1/3) + c[2]*tau**(2/3) + c[3]*tau)
@@ -670,11 +635,7 @@ def eq124(tau,c):
         Units: default DIPPR units for property described by `c` which 
                should be J/(kmol*K)
     """
-    N=5
-    if len(c) > N:
-        print("Error: DIPPR Equation 124 requires 5 or fewer parameters.")
-        return(float("NaN"))
-    a=fillcoeff(c,N)
+    a=fillcoeff(c)
     x = a[0] + a[1]/tau + a[2]*tau + a[3]*tau**2 + a[4]*tau**3
     return(x)
   
@@ -709,7 +670,7 @@ def eq127(t,c):
         Units: default DIPPR units for property described by `c` which 
                should be J/(kmol*K)
     """
-    if len(c) != 7:
+    if len(c) < 7:
         print("Error: DIPPR Equation 127 requires exactly 7 parameters.")
         return(float("NaN"))
     x = c[0] + c[1]*((c[2]/t)**2*np.exp(c[2]/t)/(np.exp(c[2]/t)-1)**2) + \
