@@ -108,3 +108,51 @@ def graphs(c,p):
             plt.title('Temperature Behavior of ' + p)
             plt.legend(loc=(1.04, 0))
         plt.show()
+
+
+def othmer(c):
+    """Graphs the Othmer plots for VP
+    
+    
+    
+    Parameters
+    ----------
+    c : list of `byutpl.tools.compound` objects
+     
+    Graphs the Othmer plots for all compounds in `c`. The VP's are
+    normalized with respect to the compound with the lowest NBP.
+    """
+    # check if `c` is a list
+    if type(c) != list:
+        print('Graphing requires a list of compound objects which was not supplied.')
+        return()
+   
+    # sort c on NBP
+    nbpindex=[i for i, x in enumerate(c) if not math.isnan(x.NBP)]
+    if(bool(nbpindex)): c.sort(key=lambda x: x.NBP)   
+    
+
+    # Determine the index of the compounds in `c` have data for property `p`
+    cindex=[i for i, x in enumerate(c) if not math.isnan(x.coeff['VP'].eq)]
+ 
+    if not cindex: # only graph if data are present
+        print('No data for VP were found in the supplied files, so the Othmer Plot ' + \
+              'can\'t be created.') 
+        return()
+    else:
+        #determine min and max to plot
+        xmin=np.max(np.array([i.coeff['VP'].tmin for i in c]))
+        xmax=np.min(np.array([i.coeff['VP'].tmax for i in c]))
+        xdata=np.linspace(xmin,xmax,100)
+        ydata=np.zeros([len(c),len(xdata)])
+        ydata0=c[cindex[0]].VP(xdata)
+        for i in range(len(cindex)):
+            ydata=c[cindex[i]].VP(xdata)/ydata0
+            plt.plot(xdata,ydata,label=c[cindex[i]].Name)
+            plt.yscale('log')
+
+        plt.legend(loc=(1.04, 0))
+        plt.ylabel('VP Ratio')
+        plt.xlabel('T (K)')
+        plt.title('Othmer Plot')
+        plt.show()
