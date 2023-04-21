@@ -28,6 +28,7 @@
 # Email: thomas.knotts@byu.edu                                             #
 # ======================================================================== #
 # Version 1.0 - October 2019             Derivative Method for LCP         #
+# Version 1.1 - April 2023               Trouton Method for VP             #
 # ======================================================================== #
 
 # ======================================================================== #
@@ -45,6 +46,7 @@
 # Symbol        Property                                    Units          #
 # -----------------------------------------------------------------------  #
 # t             system temperature                          K              #
+# nbp           normal boiling point                        K              #
 # psat			vapor pressure at temp t                    Pa             #
 # tr            reduced system temperature                  unitless       #
 # tc            critical temperature                        K              #
@@ -55,6 +57,8 @@
 # cvp           matrix of coefficients for icp              DIPPR Default  #
 # chvp          matrix of coefficients for icp              DIPPR Default  #
 # cldn          matrix of coefficients for icp              DIPPR Default  #
+# tau0          extended Trouton vapor pressure parameter   kJ/mol         #
+# tau1          extended Trouton vapor pressure parameter   kJ/mol         #
 # -----------------------------------------------------------------------  #
 #                                                                          #
 #                                                                          #
@@ -82,10 +86,13 @@
 #                                              (used by LCPder)                                      #
 
 # -------------------------------------------------------------------------------------------------  #
-# Primary Function                           Return Value                                Units       #
+# Primary Functions                           Return Value                                Units      #
 # -------------------------------------------------------------------------------------------------- #  
 # LCPder(t,tc,pc,w,cicp,eqnicp,cvp,chvp,cldn)  liquid heat capacity at temperature t     J/kmol/K    #
-#                                              predicted using the derivative method                 # 
+#                                              predicted using the derivative method                 #
+# troutonvp(t,nbp,tau0,tau1)                   vapor pressure at temperature t from the  Pa          #
+#                                              extended Trouton Vapor Pressure                       #
+#                                              correlation.                                          #  
 # ================================================================================================== #
 
 import numpy as np
@@ -431,3 +438,74 @@ def LCPder(t,tc,pc,w,cicp,eqnicp,cvp,chvp,cldn):
            sigmaToPCorrectionV(t,tc,pc,w,cvp) - \
            sigmaToPCorrectionL(t,tc,pc,w,cvp,cldn))
 
+def troutonvp(t,nbp,**kwargs):
+    """vapor pressure predicted from the Trouton method
+	
+    Returns the vapor pressure predicted using the Trouton
+    Vapor Pressure Correlation [1]. The parameters of the 
+    function were regressed from n-alkane data from the DIPPR[2]
+    database. If tau0 and/or tau1 are supplied, the extended 
+    version, which may be more applicable to compounds other
+    than n-alkanes, is used.
+	
+    Parameters
+    ----------
+    t : float
+        The temperature (K) of the system
+        
+    nbp : float
+        the normal boiling point (K) of the compound
+    
+    tau0 : float, Optional
+        parameter (kJ/mol) in the extended Trouton Vapor
+        Pressure Correlation
+        
+    tau1 : float, Optional
+        parameter (kJ/mol) in the extended Trouton Vapor
+        Pressure Correlation
+        
+    Returns
+    -------
+    float
+        The value of the predicted vapor pressure in Pa
+
+    References
+    ----------
+    .. [1] P. M Mathias, G. Jacobs, J. Cabrera, Modified Trouton’s Rule for the 
+       Estimation, Correlation, and Evaluation of Pure-Component Vapor Pressure, 
+       J. Chem. Eng. Data, 63, 943-953 (2018).
+       
+    .. [2] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
+       for Physical Properties, AIChE, New York, NY (2017).
+	"""
+    # unpack the optional arguments
+    tau0=0.0
+    tau1=0.0
+    if 'tau0' in kwargs:
+        tau0 = np.float(kwargs.get('tau0'))
+    if 'tau1' in kwargs:
+        tau1 = np.float(kwargs.get('tau1'))        
+    
+    # coefficients
+    Q=np.array([(-23.16386401, 0.06121999, -0.000105745), \
+                (-25.63264059, 0.128603925, -0.000155379),\
+                (-0.000172479, 0.042993918, 6.07194e-7),  \
+                (6.675896593, 239.8192353, -0.040603864)])
+    tb=nbp
+    rg=srk.rg/1000
+    P1=Q[0,0]*tb + Q[0,1]*tb*tb + Q[0,2]*tb*tb*tb
+    P2=Q[1,0] + Q[1,1]*tb + Q[1,2]*tb*tb
+    P3=Q[2,0]/tb + Q[2,1]/(tb*tb) + Q[2,2]
+    P4=Q[3,0]/tb + Q[3,1]/(tb*tb) + Q[3,2]
+    
+    # terms in the vp prediction
+    x1=P1*(1/t - 1/tb)
+    x2=P2*np.log(t/tb)
+    x3=P3*(t**2.5 - tb**2.5)
+    x4=P4*(t-tb)
+    x5=-tau0/rg*(1/t-1/tb)
+    x6=tau1/rg*(1/tb*np.log(tb/t)-(1/t - 1/tb))
+    
+    return(101325*np.exp(x1+x2+x3+x4+x5+x6))
+    
