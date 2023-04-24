@@ -38,7 +38,7 @@
 # based predictions. It requires other submodules in the dippr module.     #
 #                                                                          #
 # The library can be loaded into python via the following command:         #
-# import dippr.predictions as pred                                         #
+# import dippr.tools.predictions as pred                                   #
 #                                                                          #
 # -----------------------------------------------------------------------  #
 # DEFINITION OF INPUT PARAMETERS FOR FUNCTIONS                             #

@@ -28,6 +28,7 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import byutpl.tools.fitting as fit
 def graphs(c,p):
     """Graphs the data for the compounds in `c` for property `p`
     
@@ -155,4 +156,41 @@ def othmer(c):
         plt.ylabel('VP Ratio')
         plt.xlabel('T (K)')
         plt.title('Othmer Plot')
+        plt.show()
+
+def troutontau(c):
+    """Determines and graphs the tau0 Trouton parameters
+    
+    Parameters
+    ----------
+    c : list of `byutpl.tools.compound` objects
+     
+    Determines the Trouton parameters (tau0) for the compounds in `c`
+    based on their vapor pressures and then graphs them by molecular
+    weight.
+    """
+    # sort c on MW if MW is available
+    mwindex=[i for i, x in enumerate(c) if not math.isnan(x.MW)]
+    if(bool(mwindex)): c.sort(key=lambda x: x.MW)
+
+    # Determine the index of the compounds in `c` have data for property `VP`
+    cindex=[i for i, x in enumerate(c) if not math.isnan(x.coeff['VP'].eq)]
+ 
+    if not cindex: # only graph if data are present
+        print('No data for VP were found in the supplied files, so the Trouton parameter ' + \
+              'plot can\'t be created.') 
+        return()
+    else:
+        for i in range(len(cindex)):
+            x=np.linspace(c[cindex[i]].coeff['VP'].tmin, c[cindex[i]].coeff['VP'].tmax-1, 50)
+            y=c[cindex[i]].VP(x)
+            xdata=c[cindex[i]].MW
+            param,cov,info=fit.troutonvp(x,y,c[cindex[i]].NBP,False)
+            ydata=param[0]
+            plt.plot(xdata,ydata,'o',label=c[cindex[i]].Name)
+            plt.legend(loc=(1.04, 0))
+            plt.ylabel('Tau0 (kJ/mol)')
+            plt.xlabel('MW')
+            plt.title('Trouton Parameters')
+        print(ydata)
         plt.show()
