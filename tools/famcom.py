@@ -83,14 +83,14 @@ def graphs(c,p):
         return()
     else:
         if ptype == 'const':
-            names=[c[i].Name for i in cindex]
-            xdata=[c[i].MW for i in cindex]
-            ydata=[getattr(c[i],p) for i in cindex]
-            plt.plot(xdata,ydata,'o')
+            for i in range(len(cindex)):
+                xdata=c[cindex[i]].MW
+                ydata=getattr(c[cindex[i]],p)
+                plt.plot(xdata,ydata,'o',label=c[cindex[i]].Name)
+            plt.legend(loc=(1.04, 0))
             plt.ylabel(p)
             plt.xlabel('MW')
             plt.title(p + ' vs MW')
-            print(names)
         else:
             for i in range(len(cindex)):
                 xdata=np.linspace(c[cindex[i]].coeff[p].tmin, c[cindex[i]].coeff[p].tmax-1, 50)
@@ -188,9 +188,8 @@ def troutontau(c):
             param,cov,info=fit.troutonvp(x,y,c[cindex[i]].NBP,False)
             ydata=param[0]
             plt.plot(xdata,ydata,'o',label=c[cindex[i]].Name)
-            plt.legend(loc=(1.04, 0))
-            plt.ylabel('Tau0 (kJ/mol)')
-            plt.xlabel('MW')
-            plt.title('Trouton Parameters')
-        print(ydata)
+        plt.legend(loc=(1.04, 0))
+        plt.ylabel('Tau0 (kJ/mol)')
+        plt.xlabel('MW')
+        plt.title('Trouton Parameters')
         plt.show()
