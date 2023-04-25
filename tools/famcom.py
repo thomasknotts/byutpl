@@ -185,7 +185,7 @@ def troutontau(c):
             x=np.linspace(c[cindex[i]].coeff['VP'].tmin, c[cindex[i]].coeff['VP'].tmax-1, 50)
             y=c[cindex[i]].VP(x)
             xdata=c[cindex[i]].MW
-            param,cov,info=fit.troutonvp(x,y,c[cindex[i]].NBP,False)
+            param=fit.troutonvp(x,y,c[cindex[i]].NBP,tau1=False,percent=True)
             ydata=param[0]
             plt.plot(xdata,ydata,'o',label=c[cindex[i]].Name)
         plt.legend(loc=(1.04, 0))

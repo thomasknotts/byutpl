@@ -52,18 +52,17 @@
 #                                                                          #
 #                                                                          #
 # -------------------------------------------------------------------------------------------------  #
-# Functions                                    Return Value                                Units      #
+# Functions                                    Return Value                                Units     #
 # -------------------------------------------------------------------------------------------------- #  
-# troutonvp(t,vp,nbp, tau1=False)              fit `t` and `vp` data to obtain `tau0` and            #
-#                                              (optionally) `tau1` of the extended Trouton           #
-#                                              vapor pressure correlation                            #  
+# troutonvp(t,vp,nbp,tau1=False,percent=False) tau0 and tau1 (see below)                   kJ/mol    #  
 # ================================================================================================== #
      
 import byutpl.tools.predictions as pred
 from scipy.optimize import curve_fit
+from scipy.optimize import minimize
+import numpy as np
 
-
-def troutonvp(t, vp, nbp, tau1=False):
+def troutonvp(t, vp, nbp, tau1=False, percent=False):
     """fit the tau0 and tau1 Trouton VP parameters to data 
 	
     Returns the parameter(s) in the extended Trouton
@@ -88,6 +87,12 @@ def troutonvp(t, vp, nbp, tau1=False):
     tau1 : boolean, default=False
         True:  both tau0 and tau1 are fit to the data.
         False: only tau0 is fit to the data; tau1=0
+    
+    percent : boolean, default=False
+        True: use the sum square percent difference as the objective 
+              function when fitting
+        False: use the sum square error as the objective function 
+               when fitting
         
     Returns
     -------
@@ -101,13 +106,29 @@ def troutonvp(t, vp, nbp, tau1=False):
        Estimation, Correlation, and Evaluation of Pure-Component Vapor Pressure, 
        J. Chem. Eng. Data, 63, 943-953 (2018).
 	"""
-    if tau1==False:
-        def f(t,tau0guess):
-            return(pred.troutonvp(t,nbp,tau0=tau0guess))
+    if percent==False:
+        if tau1==False:
+            def f(t,tau0guess):
+                return(pred.troutonvp(t,nbp,tau0=tau0guess))
+        else:
+            def f(t,tau0guess, tau1guess):
+                return(pred.troutonvp(t,nbp,tau0=tau0guess,tau1=tau1guess))
+        param,cov,info,msg,soln=curve_fit(f,t,vp,full_output=True)
+        return(param)
     else:
-        def f(t,tau0guess, tau1guess):
-            return(pred.troutonvp(t,nbp,tau0=tau0guess, tau1=tau1guess))
-    param,cov,info,msg,soln=curve_fit(f,t,vp,full_output=True)
-    return(param,cov,info)
+        if tau1==False:
+            def f(tau0guess,t):
+                resid=(pred.troutonvp(t,nbp,tau0=tau0guess)/vp-1)*100
+                return(np.sum(resid*resid))
+            tauguess=np.array([1])
+        else:
+            def f(tausguesses,t):
+                tau0guess, tau1guess = tausguesses
+                resid=(pred.troutonvp(t,nbp,tau0=tau0guess,tau1=tau1guess)/vp-1)*100
+                return(np.sum(resid*resid)) 
+            tauguess=np.array([1,1])
+        param=minimize(f,tauguess,args=(t))
+        return(param.x)
+        
         
     
