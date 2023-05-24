@@ -302,8 +302,8 @@ def eq105(t,c):
         Value of DIPPR Equation 105 at `t` given `c`. 
         Units: default DIPPR units for property described by `c`.
     """
-    if np.count_nonzero(c) != 4:
-        print("Error: DIPPR Equation 105 requires exactly 4 nonzero parameters.")
+    if np.count_nonzero(c) > 4:
+        print("Error: DIPPR Equation 105 requires 4 or fewer nonzero parameters.")
         return(float("NaN"))
     x = c[0]/c[1]**(1 + (1 - t/c[2])**c[3])
     return(x)
