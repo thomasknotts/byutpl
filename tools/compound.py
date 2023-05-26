@@ -148,6 +148,20 @@ class tcoeff:
         self.tmax=float("nan")  # max temp of correlation
         self.eq=float("nan")    # correlation eqation number
         self.c=np.array([])     # coefficients
+        self.devmin=float("nan")# minimum deviation from correlation
+        self.devmax=float("nan")# maximum deviation from correlation
+        self.dtype=''           # data type of correlation
+        self.error=''           # error of correlation
+        self.noteID=-1          # note id
+
+# The class for the constant property metadata   
+class metadata:
+    def __init__(self):
+        self.refID=-1           # refid
+        self.noteID=-1          # note ID
+        self.error=''           # error of point
+        self.dtype=''           # data type of point
+
         
 # The class to hold the compound information
 class compound:
@@ -188,6 +202,14 @@ class compound:
         self.HSUB=float("nan")
         self.PAR=float("nan")
         self.DC=float("nan")
+        cprops=['MW','TC','PC','VC','ZC','MP','TPT','TPP','NBP', \
+                'LVOL','HFOR','GFOR','ENT','HSTD','GSTD','SSTD', \
+                'HFUS','HCOM','ACEN','RG','SOLP','DM','VDWA','VDWV' \
+                'RI','FP','FLVL','FLVU','FLTL','FLTU','AIT','HSUB', \
+                'PAR','DC']
+        self.mdata={}
+        for i in cprops:
+            self.mdata[i]=metadata()
         tprops=['LDN','SDN','ICP','LCP','SCP','HVP','SVR','ST', \
                 'LTC','VTC','STC','VP','SVP','LVS','VVS']
         self.coeff={}
