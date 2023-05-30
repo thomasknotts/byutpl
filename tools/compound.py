@@ -202,11 +202,14 @@ class compound:
         self.HSUB=float("nan")
         self.PAR=float("nan")
         self.DC=float("nan")
+        self.HLC=float("nan")
+        self.SOLW=float("nan")
+        self.ACCW=float("nan")
         cprops=['MW','TC','PC','VC','ZC','MP','TPT','TPP','NBP', \
                 'LVOL','HFOR','GFOR','ENT','HSTD','GSTD','SSTD', \
-                'HFUS','HCOM','ACEN','RG','SOLP','DM','VDWA','VDWV' \
+                'HFUS','HCOM','ACEN','RG','SOLP','DM','VDWA','VDWV', \
                 'RI','FP','FLVL','FLVU','FLTL','FLTU','AIT','HSUB', \
-                'PAR','DC']
+                'PAR','DC','HLC','SOLW','ACCW']
         self.mdata={}
         for i in cprops:
             self.mdata[i]=metadata()
