@@ -494,30 +494,40 @@ class compound:
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the vapor thermal conductivity of the compound at temperature `t` in W/(m*K)
         """
-        return(eq.eq(t,self.coeff['VTC'].c,self.coeff['VTC'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['VTC'].c,self.coeff['VTC'].eq)*add_dippr_units('VTC'))
+        else:
+            print("ERROR: VTC requires unum units of 'K'.")
+            return(np.nan)
     
     def STC(self,t):
         """ solid thermal conductivity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the solid thermal conductivity of the compound at temperature `t` in W/(m*K)
         """
-        return(eq.eq(t,self.coeff['STC'].c,self.coeff['STC'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['STC'].c,self.coeff['STC'].eq)*add_dippr_units('STC'))
+        else:
+            print("ERROR: STC requires unum units of 'K'.")
+            return(np.nan)
     
     def VP(self,t):
         """ liquid vapor pressure of the compound
@@ -532,132 +542,73 @@ class compound:
         float
             the saturated vapor pressure of the compound at temperature `t` in Pa
         """
-        return(eq.eq(t,self.coeff['VP'].c,self.coeff['VP'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['VP'].c,self.coeff['VP'].eq)*add_dippr_units('VP'))
+        else:
+            print("ERROR: VP requires unum units of 'K'.")
+            return(np.nan)
     
     def SVP(self,t):
         """ solid vapor pressure of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the pressure of the vapor in equilibrium with the solid of the compound at temperature `t` in Pa
         """
-        return(eq.eq(t,self.coeff['SVP'].c,self.coeff['SVP'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['SVP'].c,self.coeff['SVP'].eq)*add_dippr_units('SVP'))
+        else:
+            print("ERROR: SVP requires unum units of 'K'.")
+            return(np.nan)
+
     
     def LVS(self,t):
         """ liquid viscosity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the liquid viscosity of the compound at temperature `t` in Pa*s
         """
-        return(eq.eq(t,self.coeff['LVS'].c,self.coeff['LVS'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['LVS'].c,self.coeff['LVS'].eq)*add_dippr_units('LVS'))
+        else:
+            print("ERROR: LVS requires unum units of 'K'.")
+            return(np.nan)
     
     def VVS(self,t):
         """ vapor viscosity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the low-pressure vapor viscosity of the compound at temperature `t` in Pa*s
         """
-        return(eq.eq(t,self.coeff['VVS'].c,self.coeff['VVS'].eq))
-        
-def graphs(c,p):
-    """Graphs the data for the compounds in `c` for property `p`
-    
-    
-    
-    Parameters
-    ----------
-    c : list of `famcom.compound` objects
-        
-    p : string
-        DIPPR property to graph
-        Must be one of the following: MW, TC, PC, VC, ZC, MP, TPT, TPP,
-        NBP, LVOL, HFOR, GFOR, ENT, HSTD, GSTD, SSTD, HFUS, HCOM, ACEN,
-        RG, SOLP, DM, VDWA, VDWV, RI, FP, FLVL, FLTL, FLVU, FLTU, AIT,
-        HSUB, PAR, DC, LDN, SDN, ICP, LCP, SCP, HVP, SVR, ST, LTC, VTC,
-        STC, VP, SVP, LVS, VVS.
-    
-    Graphs property `p` for all compounds in `c`. If `p` is a constant
-    property, the graph is done vs molecular weight (`p` vs MW). If `p`
-    is a temperature-dependent property, the graph is `p` vs `T`.
-    Different lines will appear on the graph if multiple compounds
-    are found in `c`.
-    """
-    # check if `c` is a list
-    if type(c) != list:
-        print('Graphing requires a list of compound objects which was not supplied.')
-        return()
-   
-    # check whether the property is constant, tdep, or not a DIPPR prop
-    cprops=['MW','TC','PC','VC','ZC','MP','TPT','TPP','NBP','LVOL','HFOR','GFOR', \
-            'ENT','HSTD','GSTD','SSTD','HFUS','HCOM','ACEN','RG','SOLP','DM', \
-            'VDWA','VDWV','RI','FP','FLVL','FLTL','FLVU','FLTU','AIT','HSUB', \
-            'PAR','DC']
-    tprops=['LDN','SDN','ICP','LCP','SCP','HVP','SVR','ST', \
-            'LTC','VTC','STC','VP','SVP','LVS','VVS']
-    ptype=''
-    if p in cprops: ptype='const'
-    elif p not in tprops:
-        print('Property ' + p + ' is not a DIPPR property.')
-        return()
-    
-    # sort c on MW if MW is available
-    mwindex=[i for i, x in enumerate(c) if not math.isnan(x.MW)]
-    if(bool(mwindex)): c.sort(key=lambda x: x.MW)
-    
-    # Determine the index of the compounds in `c` have data for property `p`
-    if ptype == 'const': cindex=[i for i, x in enumerate(c) if not math.isnan(getattr(x,p))]
-    else: cindex=[i for i, x in enumerate(c) if not math.isnan(x.coeff[p].eq)]
- 
-    if not cindex: # only graph if data are present
-        print('No data for ' + p + ' were found in the supplied files.') 
-        return()
-    else:
-        if ptype == 'const':
-            names=[c[i].name for i in cindex]
-            xdata=[c[i].MW for i in cindex]
-            ydata=[getattr(c[i],p) for i in cindex]
-            plt.plot(xdata,ydata,'o')
-            plt.ylabel(p)
-            plt.xlabel('MW')
-            plt.title(p + ' vs MW')
-            print(names)
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['VVS'].c,self.coeff['VVS'].eq)*add_dippr_units('VVS'))
         else:
-            for i in range(len(cindex)):
-                xdata=np.linspace(c[cindex[i]].coeff[p].tmin, c[cindex[i]].coeff[p].tmax-1, 50)
-                yf=getattr(c[cindex[i]],p)
-                ydata=yf(xdata)
-                if p in ['VP','SVP','LVS']:
-                    xdata=1.0/xdata
-                    ydata=np.log(ydata)
-                plt.plot(xdata,ydata,label=c[cindex[i]].Name)
-            if p in ['VP','SVP','LVS']:
-                plt.ylabel('ln(' + p +')')
-                plt.xlabel('1/T')
-            else:
-                plt.ylabel(p)
-                plt.xlabel('T')
-            plt.title('Temperature Behavior of ' + p)
-            plt.legend(loc=(1.04, 0))
-        plt.show()
+            print("ERROR: VVS requires unum units of 'K'.")
+            return(np.nan)
+        
  
  
