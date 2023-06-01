@@ -292,7 +292,7 @@ class compound:
             
         Returns
         -------
-        float
+        unum
             the liquid density of the compound at temperature `t` in kmol/m**3
         """
         if units_are_K(t):
@@ -304,7 +304,7 @@ class compound:
             if self.coeff['LDN'].eq == 116 or self.coeff['LDN'].eq == 119: T = 1-T/TC
             return(eq.eq(T,self.coeff['LDN'].c,self.coeff['LDN'].eq)*add_dippr_units('LDN'))
         else:
-            print("LDN requires unum units of 'K'.")
+            print("ERROR: LDN requires unum units of 'K'.")
             return(np.nan)
     
     def SDN(self,t):
@@ -312,61 +312,86 @@ class compound:
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the solid density of the compound at temperature `t` in kmol/m**3
         """
-        return(eq.eq(t,self.coeff['SDN'].c,self.coeff['SDN'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['SDN'].c,self.coeff['SDN'].eq)*add_dippr_units('SDN'))
+        else:
+            print("ERROR: SDN requires unum units of 'K'.")
+            return(np.nan)
+        
     
     def ICP(self,t):
         """ideal gas heat capacity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the ideal gas heat capacity of the compound at temperature `t` in J/(kmol*K)
         """
-        return(eq.eq(t,self.coeff['ICP'].c,self.coeff['ICP'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['ICP'].c,self.coeff['ICP'].eq)*add_dippr_units('ICP'))
+        else:
+            print("ERROR: ICP requires unum units of 'K'.")
+            return(np.nan)
     
     def LCP(self,t):
         """liquid heat capacity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the liquid heat capacity of the compound at temperature `t` in J/(kmol*K)
         """
-        if self.coeff['LCP'].eq == 114 or self.coeff['LCP'].eq == 124: t = 1-t/self.TC
-        return(eq.eq(t,self.coeff['LCP'].c,self.coeff['LCP'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            if units_are_K(self.TC):
+                TC=self.TC.asNumber()
+            else:
+                TC=self.TC
+            if self.coeff['LCP'].eq == 114 or self.coeff['LCP'].eq == 124: T = 1-T/TC
+            return(eq.eq(T,self.coeff['LCP'].c,self.coeff['LCP'].eq)*add_dippr_units('LCP'))
+        else:
+            print("ERROR: LCP requires unum units of 'K'.")
+            return(np.nan)
     
     def SCP(self,t):
         """solid heat capacity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the solid heat capacity of the compound at temperature `t` in J/(kmol*K)
         """
-        return(eq.eq(t,self.coeff['SCP'].c,self.coeff['SCP'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['SCP'].c,self.coeff['SCP'].eq)*add_dippr_units('SCP'))
+        else:
+            print("ERROR: SCP requires unum units of 'K'.")
+            return(np.nan)
     
     def HVP(self,t):
         """heat of vaporization of the compound
@@ -381,55 +406,88 @@ class compound:
         float
             the heat of vaporization of the compound at temperature `t` in J/kmol
         """
-        if self.coeff['HVP'].eq == 106: t = t/self.TC
-        return(eq.eq(t,self.coeff['HVP'].c,self.coeff['HVP'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            if units_are_K(self.TC):
+                TC=self.TC.asNumber()
+            else:
+                TC=self.TC
+            if self.coeff['HVP'].eq == 106: T = T/TC
+            return(eq.eq(T,self.coeff['HVP'].c,self.coeff['HVP'].eq)*add_dippr_units('HVP'))
+        else:
+            print("ERROR: HVP requires unum units of 'K'.")
+            return(np.nan)
     
     def SVR(self,t):
         """second virial coefficient of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the second virial coefficient of the compound at temperature `t` in m**3/kmol
         """
-        return(eq.eq(t,self.coeff['SVR'].c,self.coeff['SVR'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            return(eq.eq(T,self.coeff['SVR'].c,self.coeff['SVR'].eq)*add_dippr_units('SVR'))
+        else:
+            print("ERROR: SVR requires unum units of 'K'.")
+            return(np.nan)
+
     
     def ST(self,t):
         """ surface tension of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the surface tension of the compound at temperature `t` in N/m
         """
-        if self.coeff['ST'].eq == 106: t = t/self.TC
-        return(eq.eq(t,self.coeff['ST'].c,self.coeff['ST'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            if units_are_K(self.TC):
+                TC=self.TC.asNumber()
+            else:
+                TC=self.TC
+            if self.coeff['ST'].eq == 106: T = T/TC
+            return(eq.eq(T,self.coeff['ST'].c,self.coeff['ST'].eq)*add_dippr_units('ST'))
+        else:
+            print("ERROR: ST requires unum units of 'K'.")
+            return(np.nan)
     
     def LTC(self,t):
         """ liquid thermal conductivity of the compound
         
         Parameter
         ----------
-        t : float
+        t : unum
             temperature (K)
             
         Returns
         -------
-        float
+        unum
             the liquid thermal conductivity of the compound at temperature `t` in W/(m*K)
         """
-        if self.coeff['LTC'].eq == 123: t = 1-t/self.TC
-        return(eq.eq(t,self.coeff['LTC'].c,self.coeff['LTC'].eq))
+        if units_are_K(t):
+            T=t.asNumber()
+            if units_are_K(self.TC):
+                TC=self.TC.asNumber()
+            else:
+                TC=self.TC
+            if self.coeff['LTC'].eq == 123: T = 1-T/TC
+            return(eq.eq(T,self.coeff['LTC'].c,self.coeff['LTC'].eq)*add_dippr_units('LTC'))
+        else:
+            print("ERROR: LTC requires unum units of 'K'.")
+            return(np.nan)
     
     def VTC(self,t):
         """ vapor thermal conductivity of the compound
