@@ -207,21 +207,21 @@ def isnumber(s):
 class tcoeff:
     def __init__(self):
         self.prop=''            # property
-        self.tmin=float("nan")  # min temp of correlation
-        self.tmax=float("nan")  # max temp of correlation
-        self.eq=float("nan")    # correlation eqation number
+        self.tmin=np.nan        # min temp of correlation
+        self.tmax=np.nan        # max temp of correlation
+        self.eq=np.nan          # correlation eqation number
         self.c=np.array([])     # coefficients
-        self.devmin=float("nan")# minimum deviation from correlation
-        self.devmax=float("nan")# maximum deviation from correlation
+        self.devmin=np.nan      # minimum deviation from correlation
+        self.devmax=np.nan      # maximum deviation from correlation
         self.dtype=''           # data type of correlation
         self.error=''           # error of correlation
-        self.noteID=-1          # note id
+        self.noteID=''          # note id
 
 # The class for the constant property metadata   
 class metadata:
     def __init__(self):
-        self.refID=-1           # refid
-        self.noteID=-1          # note ID
+        self.refID=''           # refid
+        self.noteID=''          # note ID
         self.error=''           # error of point
         self.dtype=''           # data type of point
 
@@ -231,43 +231,43 @@ class compound:
     def __init__(self):
         self.Name=''
         self.ChemID=-1
-        self.MW=float("nan")
-        self.TC=float("nan")
-        self.PC=float("nan")
-        self.VC=float("nan")
-        self.ZC=float("nan")
-        self.MP=float("nan")
-        self.TPT=float("nan")
-        self.TPP=float("nan")
-        self.NBP=float("nan")
-        self.LVOL=float("nan")
-        self.HFOR=float("nan")
-        self.GFOR=float("nan")
-        self.ENT=float("nan")
-        self.HSTD=float("nan")
-        self.GSTD=float("nan")
-        self.SSTD=float("nan")
-        self.HFUS=float("nan")
-        self.HCOM=float("nan")
-        self.ACEN=float("nan")
-        self.RG=float("nan")
-        self.SOLP=float("nan")
-        self.DM=float("nan")
-        self.VDWA=float("nan")
-        self.VDWV=float("nan")
-        self.RI=float("nan")
-        self.FP=float("nan")
-        self.FLVL=float("nan")
-        self.FLVU=float("nan")
-        self.FLTL=float("nan")
-        self.FLTU=float("nan")
-        self.AIT=float("nan")
-        self.HSUB=float("nan")
-        self.PAR=float("nan")
-        self.DC=float("nan")
-        self.HLC=float("nan")
-        self.SOLW=float("nan")
-        self.ACCW=float("nan")
+        self.MW=np.nan
+        self.TC=np.nan
+        self.PC=np.nan
+        self.VC=np.nan
+        self.ZC=np.nan  
+        self.MP=np.nan  
+        self.TPT=np.nan 
+        self.TPP=np.nan 
+        self.NBP=np.nan 
+        self.LVOL=np.nan
+        self.HFOR=np.nan
+        self.GFOR=np.nan
+        self.ENT=np.nan 
+        self.HSTD=np.nan
+        self.GSTD=np.nan
+        self.SSTD=np.nan
+        self.HFUS=np.nan
+        self.HCOM=np.nan
+        self.ACEN=np.nan
+        self.RG=np.nan  
+        self.SOLP=np.nan
+        self.DM=np.nan  
+        self.VDWA=np.nan
+        self.VDWV=np.nan
+        self.RI=np.nan  
+        self.FP=np.nan  
+        self.FLVL=np.nan
+        self.FLVU=np.nan
+        self.FLTL=np.nan
+        self.FLTU=np.nan
+        self.AIT=np.nan 
+        self.HSUB=np.nan
+        self.PAR=np.nan 
+        self.DC=np.nan  
+        self.HLC=np.nan 
+        self.SOLW=np.nan
+        self.ACCW=np.nan
         cprops=['MW','TC','PC','VC','ZC','MP','TPT','TPP','NBP', \
                 'LVOL','HFOR','GFOR','ENT','HSTD','GSTD','SSTD', \
                 'HFUS','HCOM','ACEN','RG','SOLP','DM','VDWA','VDWV', \
@@ -295,6 +295,11 @@ class compound:
         unum
             the liquid density of the compound at temperature `t` in kmol/m**3
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['LDN'].eq):
+            print("ERROR: LDN has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false)
         if units_are_K(t):
             T=t.asNumber()
             if units_are_K(self.TC):
@@ -320,6 +325,11 @@ class compound:
         unum
             the solid density of the compound at temperature `t` in kmol/m**3
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['SDN'].eq):
+            print("ERROR: SDN has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false)
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['SDN'].c,self.coeff['SDN'].eq)*add_dippr_units('SDN'))
@@ -341,6 +351,11 @@ class compound:
         unum
             the ideal gas heat capacity of the compound at temperature `t` in J/(kmol*K)
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['ICP'].eq):
+            print("ERROR: ICP has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['ICP'].c,self.coeff['ICP'].eq)*add_dippr_units('ICP'))
@@ -361,6 +376,11 @@ class compound:
         unum
             the liquid heat capacity of the compound at temperature `t` in J/(kmol*K)
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['LCP'].eq):
+            print("ERROR: LCP has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             if units_are_K(self.TC):
@@ -386,6 +406,11 @@ class compound:
         unum
             the solid heat capacity of the compound at temperature `t` in J/(kmol*K)
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['SCP'].eq):
+            print("ERROR: SCP has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['SCP'].c,self.coeff['SCP'].eq)*add_dippr_units('SCP'))
@@ -406,6 +431,11 @@ class compound:
         float
             the heat of vaporization of the compound at temperature `t` in J/kmol
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['HVP'].eq):
+            print("ERROR: HVP has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             if units_are_K(self.TC):
@@ -431,6 +461,11 @@ class compound:
         unum
             the second virial coefficient of the compound at temperature `t` in m**3/kmol
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['SVR'].eq):
+            print("ERROR: SVR has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['SVR'].c,self.coeff['SVR'].eq)*add_dippr_units('SVR'))
@@ -452,6 +487,11 @@ class compound:
         unum
             the surface tension of the compound at temperature `t` in N/m
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['ST'].eq):
+            print("ERROR: ST has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             if units_are_K(self.TC):
@@ -477,6 +517,11 @@ class compound:
         unum
             the liquid thermal conductivity of the compound at temperature `t` in W/(m*K)
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['LTC'].eq):
+            print("ERROR: LTC has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             if units_are_K(self.TC):
@@ -502,6 +547,11 @@ class compound:
         unum
             the vapor thermal conductivity of the compound at temperature `t` in W/(m*K)
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['VTC'].eq):
+            print("ERROR: VTC has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['VTC'].c,self.coeff['VTC'].eq)*add_dippr_units('VTC'))
@@ -522,6 +572,9 @@ class compound:
         unum
             the solid thermal conductivity of the compound at temperature `t` in W/(m*K)
         """
+        if np.isnan(self.coeff['STC'].eq):
+            print("ERROR: STC has not been initialized for this compound.")
+            return(np.nan)
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['STC'].c,self.coeff['STC'].eq)*add_dippr_units('STC'))
@@ -542,6 +595,11 @@ class compound:
         float
             the saturated vapor pressure of the compound at temperature `t` in Pa
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['VP'].eq):
+            print("ERROR: VP has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['VP'].c,self.coeff['VP'].eq)*add_dippr_units('VP'))
@@ -562,6 +620,11 @@ class compound:
         unum
             the pressure of the vapor in equilibrium with the solid of the compound at temperature `t` in Pa
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['SVP'].eq):
+            print("ERROR: SVP has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['SVP'].c,self.coeff['SVP'].eq)*add_dippr_units('SVP'))
@@ -583,6 +646,11 @@ class compound:
         unum
             the liquid viscosity of the compound at temperature `t` in Pa*s
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['LVS'].eq):
+            print("ERROR: LVS has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['LVS'].c,self.coeff['LVS'].eq)*add_dippr_units('LVS'))
@@ -603,6 +671,11 @@ class compound:
         unum
             the low-pressure vapor viscosity of the compound at temperature `t` in Pa*s
         """
+        # Check to see if the property has been initialized; return error if not
+        if np.isnan(self.coeff['VVS'].eq):
+            print("ERROR: VVS has not been initialized for this compound.")
+            return(np.nan)
+        # Check that the units on `t` are K; return property (true) or error (false) 
         if units_are_K(t):
             T=t.asNumber()
             return(eq.eq(T,self.coeff['VVS'].c,self.coeff['VVS'].eq)*add_dippr_units('VVS'))
