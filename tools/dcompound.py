@@ -224,13 +224,19 @@ class metadata:
         self.noteID=''          # note ID
         self.error=''           # error of point
         self.dtype=''           # data type of point
+        self.sourcedetail=''    # source detail
+        self.sourcetype=''      # source type, evaluated/unevaluated/etc.
+        self.errorsource=''     # error source
+        
 
         
 # The class to hold the compound information
 class compound:
     def __init__(self):
         self.Name=''
-        self.ChemID=-1
+        self.ChemID=''
+        self.Formula=''
+        self.CAS=''
         self.MW=np.nan
         self.TC=np.nan
         self.PC=np.nan
