@@ -224,8 +224,8 @@ class metadata:
         self.noteID=''          # note ID
         self.error=''           # error of point
         self.dtype=''           # data type of point
-        self.sourcedetail=''    # source detail
-        self.sourcetype=''      # source type, evaluated/unevaluated/etc.
+        self.sourcedetail=''    # source detail, primary/cited/etc.
+        self.sourcetype=''      # source type, evaluated/unevaluated/staff
         self.errorsource=''     # error source
         
 
