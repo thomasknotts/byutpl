@@ -483,9 +483,9 @@ def troutonvp(t,nbp,**kwargs):
     tau0=0.0
     tau1=0.0
     if 'tau0' in kwargs:
-        tau0 = np.float(kwargs.get('tau0'))
+        tau0 = float(kwargs.get('tau0'))
     if 'tau1' in kwargs:
-        tau1 = np.float(kwargs.get('tau1'))        
+        tau1 = float(kwargs.get('tau1'))        
     
     # coefficients
     Q=np.array([(-23.16386401, 0.06121999, -0.000105745), \
