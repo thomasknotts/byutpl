@@ -117,6 +117,7 @@ LDN        saturated liquid density                          kmol/m**3
 SDN        solid density                                     kmol/m**3
 ICP        ideal gas heat capacity                          J/(kmol*K)
 LCP        liquid heat capacity                             J/(kmol*K)
+LCPmass    liquid heat capacity per mass                      J/(kg*K)
 SCP        solid heat capacity                              J/(kmol*K)
 HVP        heat of vaporization                                 J/kmol
 SVR        second virial coefficient                         m**3/kmol
@@ -215,7 +216,7 @@ class compound:
         self.mdata={}
         for i in cprops:
             self.mdata[i]=metadata()
-        tprops=['LDN','SDN','ICP','LCP','SCP','HVP','SVR','ST', \
+        tprops=['LDN','SDN','ICP','LCP','LCP(per mass)','SCP','HVP','SVR','ST', \
                 'LTC','VTC','STC','VP','SVP','LVS','VVS']
         self.coeff={}
         for i in tprops:
@@ -339,6 +340,21 @@ class compound:
         """
         if self.coeff['LCP'].eq == 114 or self.coeff['LCP'].eq == 124: t = 1-t/self.TC
         return(eq.eq(t,self.coeff['LCP'].c,self.coeff['LCP'].eq))
+        
+    def LCPmass(self,t):
+        """liquid heat capacity of the compound (per mass)
+        
+        Parameter
+        ----------
+        t : float
+            temperature (K)
+            
+        Returns
+        -------
+        float
+            the liquid heat capacity of the compound at temperature `t` in J/(kg*K)
+        """
+        return(self.LCP(t)/self.MW)
     
     def SCP(self,t):
         """solid heat capacity of the compound

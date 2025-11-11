@@ -91,6 +91,7 @@ def graphs(c,p):
             plt.ylabel(p)
             plt.xlabel('MW')
             plt.title(p + ' vs MW')
+            plt.show()
         else:
             for i in range(len(cindex)):
                 xdata=np.linspace(c[cindex[i]].coeff[p].tmin, c[cindex[i]].coeff[p].tmax-1, 50)
@@ -108,7 +109,22 @@ def graphs(c,p):
                 plt.xlabel('T')
             plt.title('Temperature Behavior of ' + p)
             plt.legend(loc=(1.04, 0))
-        plt.show()
+            plt.show()
+            # If LCP is available, also print it by mass
+            if p=='LCP':
+                plt.show()
+                for i in range(len(cindex)):
+                    xdata=np.linspace(c[cindex[i]].coeff[p].tmin, c[cindex[i]].coeff[p].tmax-1, 50)
+                    yf=getattr(c[cindex[i]],p)
+                    ydata=yf(xdata)/c[cindex[i]].MW
+                    
+                    plt.plot(xdata,ydata,label=c[cindex[i]].Name)
+
+                plt.ylabel('LCP (per mass)')
+                plt.xlabel('T')
+                plt.title('Temperature Behavior of ' + p +'(per mass)')
+                plt.legend(loc=(1.04, 0))
+                plt.show()
 
 
 def othmer(c):
