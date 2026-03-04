@@ -344,7 +344,7 @@ def valpha(t, p):
        Fundamental of Heat and Mass Transfer 7th edition,
        John Wiley & Sons Inc., Hoboken, NJ (2011).
 	"""
-    return vtc(t)/vdn(t,p)*mw/icp(t)
+    return vtc(t)/vdn(t,p)*mw/vcp(t,p)
 
 def vpr(t,p):
     """vapor Prandtl number of air
