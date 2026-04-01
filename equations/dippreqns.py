@@ -585,7 +585,7 @@ def eq123(tau,c):
     ----------
     tau : float
         one minus the reduced temperature, 1-tr (unitless)
-        tr = 1 - t/tc
+        tr = t/tc
         
     c : 4x1 array 
         the coefficients for the equation
