@@ -17,9 +17,9 @@
 #                                                                          #
 # All published work which utilizes this module, or other property data    #
 # from the DIPPR(R) database, should include the citation below.           #
-# R. L. Rowley, W. V. Wilding, J. L. Oscarson, T. A. Knotts, N. F. Giles,  #
+# W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley,                  #
 # DIPPR® Data Compilation of Pure Chemical Properties, Design Institute    #
-# for Physical Properties, AIChE, New York, NY (2017).                     #
+# for Physical Properties, AIChE, New York, NY (2025).                     #
 #                                                                          #
 # ======================================================================== #
 # water.py                                                                 #
@@ -81,6 +81,7 @@ zc          critical compress. factor (unitless)     none
 mw          molecular weight in kg/mol               none              
 acen        acentric factor (unitless)               none              
 ldn(t)      liquid density in kg/m**3                temperature in K  
+icp(t)      ideal gas heat capacity in J/(mol*K)     temperature in K  
 lcp(t)      liquid heat capacity in J/(mol*K)        temperature in K  
 ltc(t)      liquid thermal conductivity in W/(m*K)   temperature in K  
 vp(t)       liquid vapor pressure in Pa              temperature in K  
@@ -102,9 +103,9 @@ vpr(t,p)    vapor (steam) Prandtl number (unitless)  temperature in K
 
 References
 ----------
-.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, 
    DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-   for Physical Properties, AIChE, New York, NY (2017).
+   for Physical Properties, AIChE, New York, NY (2025).
 """
 
 import numpy as np
@@ -146,12 +147,6 @@ def ldn(t):
     -------
     float
         The value of the liquid density (kg/m**3) of water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([1.7874E+01, 3.5618E+01, 1.9655E+01, -9.1306E+00, \
                   -3.1367E+01, -8.1356E+02, -1.7421E+07])
@@ -180,12 +175,6 @@ def lcp(t):
     float
         The value of the liquid heat capacity (J mol**-1 K**-1) of water at
         `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([2.7637E+05, -2.0901E+03, 8.1250E+00, -1.4116E-02, 9.3701E-06])
     y = dippr.eq100(t,c)
@@ -209,12 +198,6 @@ def ltc(t):
     -------
     float
         The liquid thermal conductivity (W m**-1 K**-1) of water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([-4.3200E-01, 5.7255E-03, -8.0780E-06, 1.8610E-09, 0])
     y = dippr.eq100(t,c)
@@ -237,12 +220,6 @@ def vp(t):
     -------
     float
         The liquid vapor pressure (Pa) of water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([7.3649E+01, -7.2582E+03, -7.3037E+00, 4.1653E-06, 2.0])
     y = dippr.eq101(t,c)
@@ -265,12 +242,6 @@ def hvp(t):
     -------
     float
         The heat of vaporization (J/mol) of water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([5.6600E+07, 6.12041E-01, -6.25697E-01, 3.98804E-01, 0])
     tr = t/tc
@@ -295,12 +266,6 @@ def lvs(t):
     -------
     float
         The liquid viscosity (Pa*s) of water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([-5.2843E+01, 3.7036E+03, 5.8660E+00, -5.8790E-29, 10])
     y = dippr.eq101(t,c)
@@ -322,12 +287,6 @@ def lnu(t):
     -------
     float
         The liquid kinematic viscosity (m**2/s) of water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(lvs(t)/ldn(t))
 
@@ -347,12 +306,6 @@ def lpr(t):
     -------
     float
         The Prandtl number (dimensionless) of liquid water at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(lcp(t)*lvs(t)/ltc(t)/mw)
 
@@ -378,12 +331,6 @@ def ftsat(t,p):
     float
         The value of the function supplied to fsolve.  This value will be 
     	zero if 't' is the saturated temperature for `p`. 
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vp(t) - p)
 
@@ -405,12 +352,6 @@ def tsat(p):
     -------
     float
         The temperature (K) of water at saturation at pressure `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = 700 # guess in K
     y = fsolve(ftsat,x,p)
@@ -434,12 +375,6 @@ def vvs(t):
     -------
     float
         The vapor viscosity of water (Pa*s) (the viscosity of steam) at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([1.7096E-08, 1.1146, 0, 0])
     y = dippr.eq102(t,c)
@@ -464,12 +399,6 @@ def vtc(t):
     float
         The vapor thermal conductivity of water (W m**-1 K**-1) 
     	(the thermal conductivity of steam) at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([6.2041E-06, 1.3973, 0, 0])
     y = dippr.eq102(t,c)
@@ -505,6 +434,30 @@ def vdn(t,p):
     v = v / mw # convert from m**3/mol to m**3/kg
     return(1/v)
     
+def icp(t): 
+    """ideal gas heat capacity of water
+    
+    The ideal gas heat capacity of water at temperature `t` from the 
+    DIPPR(R) correlation.
+    (Correlation A: DIPPR Equation 107; valid from 100 - 2273.15 K;
+    uncertainty: < 1%)
+    
+    Parameters
+    ----------
+    t : float
+        The temperature (K) at which to evaluate the ideal gas heat
+        capacity of ethanol.
+
+    Returns
+    -------
+    float
+        The ideal gas heat capacity of ethanol (J/(mol*K)) at `t`.
+    """     
+    c = np.array([33363, 26790, 2610.5, 8896, 1169])
+    y=dippr.eq107(t,c)
+    y = y / 1000 # convert from J/kmol/K to J/mol/K
+    return(y)
+    
 def vcp(t,p):
     """vapor heat capacity water (steam)
 	
@@ -529,16 +482,8 @@ def vcp(t,p):
     float
         The heat capacity (J/(mol*K)) of vapor water (steam)
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
-    c = np.array([33363, 26790, 2610.5, 8896, 1169])
-    icp = dippr.eq107(t,c) / 1000 # convert from J/(kmol*K) to J/(mol*K)
-    x = icp + srk.cprv(t,p,tc,pc,acen)
+    x = icp(t) + srk.cprv(t,p,tc,pc,acen)
     return(x)
 
 def vnu(t,p):
@@ -566,12 +511,6 @@ def vnu(t,p):
     float
         The kinematic viscosity (m**2/s) of vapor water (steam)
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vvs(t)/vdn(t,p))
 
@@ -601,12 +540,6 @@ def vpr(t, p):
     float
         The Prandtl number (dimensionless) of vapor water (steam) at `t`
         and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vcp(t,p)*vvs(t)/vtc(t)/mw)
 
@@ -627,12 +560,6 @@ def unit(key):
     -------
     string
         The units for the constant or function identified by `key`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     if type(key) !=str:
         return('The parameter must be a string.')
@@ -650,6 +577,8 @@ def unit(key):
         return('kg/mol')
     if key == 'ldn':
         return('kg/m**3')
+    if key == 'icp':
+        return('J mol**-1 K**-1')
     if key == 'lcp':
         return('J mol**-1 K**-1')
     if key == 'vcp':

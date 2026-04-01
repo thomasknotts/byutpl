@@ -17,9 +17,9 @@
 #                                                                          #
 # All published work which utilizes this module, or other property data    #
 # from the DIPPR(R) database, should include the citation below.           #
-# R. L. Rowley, W. V. Wilding, J. L. Oscarson, T. A. Knotts, N. F. Giles,  #
+# W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley,                  #
 # DIPPR® Data Compilation of Pure Chemical Properties, Design Institute    #
-# for Physical Properties, AIChE, New York, NY (2017).                     #
+# for Physical Properties, AIChE, New York, NY (2025).                     #
 #                                                                          #
 # ======================================================================== #
 # isobutane.py                                                             #
@@ -73,6 +73,7 @@ zc          critical compress. factor (unitless)     none
 mw          molecular weight in kg/mol               none              
 acen        acentric factor (unitless)               none              
 ldn(t)      liquid density in kg/m**3                temperature in K  
+icp(t)      ideal gas heat capacity in J/(mol*K)     temperature in K  
 lcp(t)      liquid heat capacity in J/(mol*K)        temperature in K  
 ltc(t)      liquid thermal conductivity in W/(m*K)   temperature in K  
 vp(t)       liquid vapor pressure in Pa              temperature in K  
@@ -88,15 +89,15 @@ vdn(t,p)    vapor (steam) density in kg/m**3         temperature in K
 vcp(t,p)    vapor (steam) isobaric heat capacity     temperature in K
             in J/(mol*K)                             pressure in Pa
 vnu(t,p)    vapor (steam) kinematic viscosity        temperature in K
-            in m**2/s                                pressure in Pa                                                     
+            in m**2/s                                pressure in Pa
 vpr(t,p)    vapor (steam) Prandtl number (unitless)  temperature in K
-                                                     pressure in Pa                                                     
+                                                     pressure in Pa
 
 References
 ----------
-.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, 
    DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-   for Physical Properties, AIChE, New York, NY (2017).
+   for Physical Properties, AIChE, New York, NY (2025).
 """
 
 import numpy as np
@@ -139,12 +140,6 @@ def ldn(t):
     -------
     float
         The value of the liquid density (kg/m**3) of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([1.0631,0.27506,407.8, 0.2758])
     y = dippr.eq105(t,c)
@@ -170,12 +165,6 @@ def lcp(t):
     float
         The value of the liquid heat capacity (J mol**-1 K**-1) of isobutane at
         `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([172370,-1783.9,14.759,-0.047909,5.805E-05])
     y = dippr.eq100(t,c)
@@ -199,12 +188,6 @@ def ltc(t):
     -------
     float
         The liquid thermal conductivity (W m**-1 K**-1) of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([0.228978,-3.88363,6.36273,-2.68714])
     tau=1-t/tc
@@ -228,12 +211,6 @@ def vp(t):
     -------
     float
         The liquid vapor pressure (Pa) of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([108.43,-5039.9,-15.012,0.022725,1])
     y = dippr.eq101(t,c)
@@ -256,12 +233,6 @@ def hvp(t):
     -------
     float
         The heat of vaporization (J/mol) of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([39654000,1.274,-1.4255,0.60708,0])
     tr = t/tc
@@ -286,12 +257,6 @@ def lvs(t):
     -------
     float
         The liquid viscosity (Pa*s) of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([-13.912,797.09,0.45308,0,0])
     y = dippr.eq101(t,c)
@@ -313,12 +278,6 @@ def lnu(t):
     -------
     float
         The liquid kinematic viscosity (m**2/s) of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(lvs(t)/ldn(t))
 
@@ -369,12 +328,6 @@ def ftsat(t,p):
     float
         The value of the function supplied to fsolve.  This value will be 
     	zero if 't' is the saturated temperature for `p`. 
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vp(t) - p)
 
@@ -396,12 +349,6 @@ def tsat(p):
     -------
     float
         The temperature (K) of isobutane at saturation at pressure `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = 700 # guess in K
     y = fsolve(ftsat,x,p)
@@ -425,12 +372,6 @@ def vvs(t):
     -------
     float
         The vapor viscosity of isobutane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([1.0871E-07,0.78135,70.639,0.0])
     y = dippr.eq102(t,c)
@@ -455,12 +396,6 @@ def vtc(t):
     float
         The vapor thermal conductivity of isobutane (W m**-1 K**-1) 
         at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([0.089772,0.18501,639.23,1114700])
     y = dippr.eq102(t,c)
@@ -539,12 +474,6 @@ def vcp(t,p):
     float
         The heat capacity (J/(mol*K)) of vapor isobutane
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = icp(t) + srk.cprv(t,p,tc,pc,acen)
     return(x)
@@ -571,12 +500,6 @@ def vnu(t,p):
     float
         The kinematic viscosity (m**2/s) of vapor isobutane
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vvs(t)/vdn(t,p))
 
@@ -603,12 +526,6 @@ def vpr(t, p):
     float
         The Prandtl number (dimensionless) of vapor isobutane at `t`
         and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vcp(t,p)*vvs(t)/vtc(t)/mw)
 
@@ -629,12 +546,6 @@ def unit(key):
     -------
     string
         The units for the constant or function identified by `key`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     if type(key) !=str:
         return('The parameter must be a string.')
@@ -652,9 +563,9 @@ def unit(key):
         return('kg/mol')
     if key == 'ldn':
         return('kg/m**3')
-    if key == 'lcp':
-        return('J mol**-1 K**-1')
     if key == 'icp':
+        return('J mol**-1 K**-1')
+    if key == 'lcp':
         return('J mol**-1 K**-1')
     if key == 'vcp':
         return('J mol**-1 K**-1')

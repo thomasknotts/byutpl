@@ -17,9 +17,9 @@
 #                                                                          #
 # All published work which utilizes this module, or other property data    #
 # from the DIPPR(R) database, should include the citation below.           #
-# R. L. Rowley, W. V. Wilding, J. L. Oscarson, T. A. Knotts, N. F. Giles,  #
+# W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley,                  #
 # DIPPR® Data Compilation of Pure Chemical Properties, Design Institute    #
-# for Physical Properties, AIChE, New York, NY (2017).                     #
+# for Physical Properties, AIChE, New York, NY (2025).                     #
 #                                                                          #
 # ======================================================================== #
 # benzene.py                                                               #
@@ -79,6 +79,7 @@ zc          critical compress. factor (unitless)     none
 mw          molecular weight in kg/mol               none              
 acen        acentric factor (unitless)               none              
 ldn(t)      liquid density in kg/m**3                temperature in K  
+icp(t)      ideal gas heat capacity in J/(mol*K)     temperature in K  
 lcp(t)      liquid heat capacity in J/(mol*K)        temperature in K  
 ltc(t)      liquid thermal conductivity in W/(m*K)   temperature in K  
 vp(t)       liquid vapor pressure in Pa              temperature in K  
@@ -100,9 +101,9 @@ vpr(t,p)    vapor (steam) Prandtl number (unitless)  temperature in K
 
 References
 ----------
-.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, 
    DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-   for Physical Properties, AIChE, New York, NY (2017).
+   for Physical Properties, AIChE, New York, NY (2025).
 """
 
 import numpy as np
@@ -145,12 +146,6 @@ def ldn(t):
     -------
     float
         The value of the liquid density (kg/m**3) of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([1.0259, 0.26666, 562.05, 0.28394])
     y = dippr.eq105(t,c)
@@ -176,12 +171,6 @@ def lcp(t):
     float
         The value of the liquid heat capacity (J mol**-1 K**-1) of benzene at
         `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([162940, -344.94, 0.85562, 0, 0])
     y = dippr.eq100(t,c)
@@ -205,12 +194,6 @@ def ltc(t):
     -------
     float
         The liquid thermal conductivity (W m**-1 K**-1) of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([0.0542518, 2.74187, -7.22561, 8.22561])
     x = 1-t/tc
@@ -234,12 +217,6 @@ def vp(t):
     -------
     float
         The liquid vapor pressure (Pa) of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([83.107, -6486.2, -9.2194, 6.9844E-06, 2])
     y = dippr.eq101(t,c)
@@ -262,12 +239,6 @@ def hvp(t):
     -------
     float
         The heat of vaporization (J/mol) of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([50007000,0.65393,-0.27698,0.029569,0.0])
     tr = t/tc
@@ -292,12 +263,6 @@ def lvs(t):
     -------
     float
         The liquid viscosity (Pa*s) of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([7.5117,294.68,-2.794,0,0])
     y = dippr.eq101(t,c)
@@ -319,12 +284,6 @@ def lnu(t):
     -------
     float
         The liquid kinematic viscosity (m**2/s) of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(lvs(t)/ldn(t))
 
@@ -344,12 +303,6 @@ def lpr(t):
     -------
     float
         The Prandtl number (dimensionless) of liquid benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return lcp(t)*lvs(t)/ltc(t)/mw
 
@@ -375,12 +328,6 @@ def ftsat(t,p):
     float
         The value of the function supplied to fsolve.  This value will be 
     	zero if 't' is the saturated temperature for `p`. 
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vp(t) - p)
 
@@ -402,12 +349,6 @@ def tsat(p):
     -------
     float
         The temperature (K) of benzene at saturation at pressure `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = 700 # guess in K
     y = fsolve(ftsat,x,p)
@@ -431,12 +372,6 @@ def vvs(t):
     -------
     float
         The vapor viscosity of benzene at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([3.134E-08,0.9676,7.9,0])
     y = dippr.eq102(t,c)
@@ -461,12 +396,6 @@ def vtc(t):
     float
         The vapor thermal conductivity of benzene (W m**-1 K**-1) 
         at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([1.652E-05,1.3117,491,0.0])
     y = dippr.eq102(t,c)
@@ -545,12 +474,6 @@ def vcp(t,p):
     float
         The heat capacity (J/(mol*K)) of vapor benzene
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = icp(t) + srk.cprv(t,p,tc,pc,acen)
     return(x)
@@ -577,12 +500,6 @@ def vnu(t,p):
     float
         The kinematic viscosity (m**2/s) of vapor benzene
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vvs(t)/vdn(t,p))
 
@@ -609,12 +526,6 @@ def vpr(t, p):
     float
         The Prandtl number (dimensionless) of vapor benzene at `t`
         and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vcp(t,p)*vvs(t)/vtc(t)/mw)
 
@@ -635,12 +546,6 @@ def unit(key):
     -------
     string
         The units for the constant or function identified by `key`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     if type(key) !=str:
         return('The parameter must be a string.')

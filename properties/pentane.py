@@ -17,9 +17,9 @@
 #                                                                          #
 # All published work which utilizes this module, or other property data    #
 # from the DIPPR(R) database, should include the citation below.           #
-# R. L. Rowley, W. V. Wilding, J. L. Oscarson, T. A. Knotts, N. F. Giles,  #
+# W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley,                  #
 # DIPPR® Data Compilation of Pure Chemical Properties, Design Institute    #
-# for Physical Properties, AIChE, New York, NY (2017).                     #
+# for Physical Properties, AIChE, New York, NY (2025).                     #
 #                                                                          #
 # ======================================================================== #
 # pentane.py                                                               #
@@ -73,6 +73,7 @@ zc          critical compress. factor (unitless)     none
 mw          molecular weight in kg/mol               none              
 acen        acentric factor (unitless)               none              
 ldn(t)      liquid density in kg/m**3                temperature in K  
+icp(t)      ideal gas heat capacity in J/(mol*K)     temperature in K  
 lcp(t)      liquid heat capacity in J/(mol*K)        temperature in K  
 ltc(t)      liquid thermal conductivity in W/(m*K)   temperature in K  
 vp(t)       liquid vapor pressure in Pa              temperature in K  
@@ -94,9 +95,9 @@ vpr(t,p)    vapor (steam) Prandtl number (unitless)  temperature in K
 
 References
 ----------
-.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
+.. [1] W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, 
    DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-   for Physical Properties, AIChE, New York, NY (2017).
+   for Physical Properties, AIChE, New York, NY (2025).
 """
 
 import numpy as np
@@ -139,12 +140,6 @@ def ldn(t):
     -------
     float
         The value of the liquid density (kg/m**3) of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([0.84947,0.26726,469.7, 0.27789])
     y = dippr.eq105(t,c)
@@ -170,12 +165,6 @@ def lcp(t):
     float
         The value of the liquid heat capacity (J mol**-1 K**-1) of pentane at
         `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([159080,-270.5,0.99537,0,0])
     y = dippr.eq100(t,c)
@@ -199,12 +188,6 @@ def ltc(t):
     -------
     float
         The liquid thermal conductivity (W m**-1 K**-1) of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([0.0775839,-0.2486,-1.77869,4.18476])
     tau=1-t/tc
@@ -228,12 +211,6 @@ def vp(t):
     -------
     float
         The liquid vapor pressure (Pa) of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([78.741,-5420.3,-8.8253,9.6171E-06,2])
     y = dippr.eq101(t,c)
@@ -256,12 +233,6 @@ def hvp(t):
     -------
     float
         The heat of vaporization (J/mol) of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([45087000,0.95886,-0.92384,0.39393,0])
     tr = t/tc
@@ -286,12 +257,6 @@ def lvs(t):
     -------
     float
         The liquid viscosity (Pa*s) of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([-53.509,1836.6,7.1409,-1.9627E-05,2])
     y = dippr.eq101(t,c)
@@ -313,12 +278,6 @@ def lnu(t):
     -------
     float
         The liquid kinematic viscosity (m**2/s) of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(lvs(t)/ldn(t))
 
@@ -338,12 +297,6 @@ def lpr(t):
     -------
     float
         The Prandtl number (dimensionless) of liquid pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return lcp(t)*lvs(t)/ltc(t)/mw
 
@@ -369,12 +322,6 @@ def ftsat(t,p):
     float
         The value of the function supplied to fsolve.  This value will be 
     	zero if 't' is the saturated temperature for `p`. 
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vp(t) - p)
 
@@ -396,12 +343,6 @@ def tsat(p):
     -------
     float
         The temperature (K) of pentane at saturation at pressure `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = 700 # guess in K
     y = fsolve(ftsat,x,p)
@@ -425,12 +366,6 @@ def vvs(t):
     -------
     float
         The vapor viscosity of pentane at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([6.3412E-08,0.84758,41.718,0.0])
     y = dippr.eq102(t,c)
@@ -455,12 +390,6 @@ def vtc(t):
     float
         The vapor thermal conductivity of pentane (W m**-1 K**-1) 
         at `t`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     c = np.array([-684.4,0.764,-1055000000,0])
     y = dippr.eq102(t,c)
@@ -539,12 +468,6 @@ def vcp(t,p):
     float
         The heat capacity (J/(mol*K)) of vapor pentane
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     x = icp(t) + srk.cprv(t,p,tc,pc,acen)
     return(x)
@@ -571,12 +494,6 @@ def vnu(t,p):
     float
         The kinematic viscosity (m**2/s) of vapor pentane
         at `t` and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vvs(t)/vdn(t,p))
 
@@ -603,12 +520,6 @@ def vpr(t, p):
     float
         The Prandtl number (dimensionless) of vapor pentane at `t`
         and `p`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     return(vcp(t,p)*vvs(t)/vtc(t)/mw)
 
@@ -629,12 +540,6 @@ def unit(key):
     -------
     string
         The units for the constant or function identified by `key`.
-
-    References
-    ----------
-    .. W. V. Wilding, T. A. Knotts, N. F. Giles, R. L. Rowley, J. L. Oscarson, 
-       DIPPR® Data Compilation of Pure Chemical Properties, Design Institute
-       for Physical Properties, AIChE, New York, NY (2017).
 	"""
     if type(key) !=str:
         return('The parameter must be a string.')
